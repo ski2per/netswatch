@@ -49,7 +49,7 @@ dist/flanneld-$(ARCH): dist/qemu-$(ARCH)-static
 	# valid values for ARCH are [amd64 arm arm64 ppc64le s390x]
 	docker run -e CGO_ENABLED=$(CGO_ENABLED) -e GOARCH=$(ARCH) -e GOCACHE=/go \
 		-u $(shell id -u):$(shell id -g) \
-		-v $(CURDIR)/dist/qemu-$(ARCH)-static:/usr/bin/qemu-$(ARCH)-static \
+		-v $(CURDIR)/qemu-$(ARCH)-static:/usr/bin/qemu-$(ARCH)-static \
 		-v $(CURDIR):/go/src/github.com/coreos/flannel:ro \
 		-v $(CURDIR)/dist:/go/src/github.com/coreos/flannel/dist \
 		golang:$(GO_VERSION) /bin/bash -c '\
@@ -153,7 +153,8 @@ release: tar.gz dist/qemu-s390x-static dist/qemu-ppc64le-static dist/qemu-aarch6
 
 dist/qemu-%-static:
 	if [ "$(@F)" = "qemu-amd64-static" ]; then \
-		wget -O dist/qemu-amd64-static https://github.com/multiarch/qemu-user-static/releases/download/$(QEMU_VERSION)/qemu-x86_64-static; \
+		# wget -O dist/qemu-amd64-static https://github.com/multiarch/qemu-user-static/releases/download/$(QEMU_VERSION)/qemu-x86_64-static; \
+		echo "USE LOCAL qemu-amd64-static"; \
 	elif [ "$(@F)" = "qemu-arm64-static" ]; then \
 		wget -O dist/qemu-arm64-static https://github.com/multiarch/qemu-user-static/releases/download/$(QEMU_VERSION)/qemu-aarch64-static; \
 	else \
