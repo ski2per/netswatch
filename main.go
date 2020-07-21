@@ -32,13 +32,13 @@ import (
 	log "github.com/golang/glog"
 	"golang.org/x/net/context"
 
+	"github.com/coreos/flannel/netswatch"
 	"github.com/coreos/flannel/network"
 	"github.com/coreos/flannel/pkg/ip"
 	"github.com/coreos/flannel/subnet"
 	"github.com/coreos/flannel/subnet/etcdv2"
 	"github.com/coreos/flannel/subnet/kube"
 	"github.com/coreos/flannel/version"
-    "github.com/coreos/flannel/netswatch"
 
 	"time"
 
@@ -183,7 +183,7 @@ func newSubnetManager() (subnet.Manager, error) {
 
 func main() {
 	fmt.Println("################# hehehe")
-    netswatch.Hello()
+	netswatch.Hello()
 	if opts.version {
 		fmt.Fprintln(os.Stderr, version.Version)
 		os.Exit(0)
