@@ -181,7 +181,7 @@ func newSubnetManager() (subnet.Manager, error) {
 }
 
 func main() {
-	fmt.Println("################# hehe")
+	fmt.Println("################# hehehe")
 	if opts.version {
 		fmt.Fprintln(os.Stderr, version.Version)
 		os.Exit(0)
