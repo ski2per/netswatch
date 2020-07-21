@@ -187,6 +187,7 @@ func main() {
 		os.Exit(0)
 	}
 
+	// Read Flags from environment variable which prefixed with "FLANNELD"
 	flagutil.SetFlagsFromEnv(flannelFlags, "FLANNELD")
 
 	// Validate flags
