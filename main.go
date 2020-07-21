@@ -182,7 +182,6 @@ func newSubnetManager() (subnet.Manager, error) {
 }
 
 func main() {
-	fmt.Println("################# hehehe")
 	netswatch.Hello()
 	if opts.version {
 		fmt.Fprintln(os.Stderr, version.Version)
@@ -265,6 +264,12 @@ func main() {
 	wg.Add(1)
 	go func() {
 		shutdownHandler(ctx, sigs, cancel)
+		wg.Done()
+	}()
+
+	wg.Add(1)
+	go func() {
+		netswatch.WatchNets(ctx)
 		wg.Done()
 	}()
 
