@@ -10,3 +10,6 @@ default.etcd/
 flannel.exe
 bash_unit
 dist/qemu-*
+
+# Ignore vendor
+vendor
