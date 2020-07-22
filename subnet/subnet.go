@@ -37,6 +37,7 @@ type LeaseAttrs struct {
 	PublicIP    ip.IP4
 	BackendType string          `json:",omitempty"`
 	BackendData json.RawMessage `json:",omitempty"`
+	Meta        string
 }
 
 type Lease struct {
@@ -48,7 +49,11 @@ type Lease struct {
 }
 
 func (l *Lease) Key() string {
-	return MakeSubnetKey(l.Subnet)
+	fmt.Println("================heheda")
+	k := MakeSubnetKey(l.Subnet)
+	fmt.Println(k)
+	return k
+	// return MakeSubnetKey(l.Subnet)
 }
 
 type (

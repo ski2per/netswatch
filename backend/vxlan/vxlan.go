@@ -55,9 +55,10 @@ package vxlan
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/golang/glog"
 	"net"
 	"sync"
+
+	log "github.com/golang/glog"
 
 	"golang.org/x/net/context"
 
@@ -98,6 +99,7 @@ func newSubnetAttrs(publicIP net.IP, mac net.HardwareAddr) (*subnet.LeaseAttrs, 
 		PublicIP:    ip.FromIP(publicIP),
 		BackendType: "vxlan",
 		BackendData: json.RawMessage(data),
+		Meta:        "bingo, bitch",
 	}, nil
 }
 

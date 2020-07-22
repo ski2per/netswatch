@@ -267,6 +267,7 @@ func main() {
 		wg.Done()
 	}()
 
+	// Add Netswatch
 	wg.Add(1)
 	go func() {
 		netswatch.WatchNets(ctx)
