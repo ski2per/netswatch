@@ -73,6 +73,7 @@ func init() {
 
 const (
 	defaultVNI = 1
+	deviceName = "netswatch"
 )
 
 type VXLANBackend struct {
@@ -124,7 +125,7 @@ func (be *VXLANBackend) RegisterNetwork(ctx context.Context, wg sync.WaitGroup, 
 
 	devAttrs := vxlanDeviceAttrs{
 		vni:       uint32(cfg.VNI),
-		name:      fmt.Sprintf("flannel.%v", cfg.VNI),
+		name:      fmt.Sprintf("%v.%v", deviceName, cfg.VNI),
 		vtepIndex: be.extIface.Iface.Index,
 		vtepAddr:  be.extIface.IfaceAddr,
 		vtepPort:  cfg.Port,
