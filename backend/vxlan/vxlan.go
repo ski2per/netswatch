@@ -73,7 +73,7 @@ func init() {
 
 const (
 	defaultVNI = 1
-	deviceName = "netswatch"
+	deviceName = "nw"
 )
 
 type VXLANBackend struct {
