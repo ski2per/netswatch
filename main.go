@@ -381,7 +381,7 @@ func shutdownHandler(ctx context.Context, sigs chan os.Signal, cancel context.Ca
 	case <-sigs:
 		// Call cancel on the context to close everything down.
 		cancel()
-		log.Info("yoyo")
+		fmt.Println("yoyo")
 		log.Info("shutdownHandler sent cancel signal...")
 	}
 

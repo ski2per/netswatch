@@ -118,11 +118,7 @@ func (esr *etcdSubnetRegistry) getNetworkConfig(ctx context.Context) (string, er
 	if err != nil {
 		return "", err
 	}
-	s := resp.Node.Value
-	fmt.Println("yo~~~~~~~~~~~~~~~")
-	fmt.Println(s)
-	return s, nil
-	// return resp.Node.Value, nil
+	return resp.Node.Value, nil
 }
 
 // getSubnets queries etcd to get a list of currently allocated leases for a given network.

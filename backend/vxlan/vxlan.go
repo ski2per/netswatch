@@ -63,6 +63,7 @@ import (
 	"golang.org/x/net/context"
 
 	"github.com/coreos/flannel/backend"
+	"github.com/coreos/flannel/netswatch"
 	"github.com/coreos/flannel/pkg/ip"
 	"github.com/coreos/flannel/subnet"
 )
@@ -96,11 +97,13 @@ func newSubnetAttrs(publicIP net.IP, mac net.HardwareAddr) (*subnet.LeaseAttrs, 
 		return nil, err
 	}
 
+	meta := netswatch.GenerateNodeMeta()
+
 	return &subnet.LeaseAttrs{
 		PublicIP:    ip.FromIP(publicIP),
 		BackendType: "vxlan",
 		BackendData: json.RawMessage(data),
-		Meta:        "bingo, bitch",
+		Meta:        meta,
 	}, nil
 }
 
