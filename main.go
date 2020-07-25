@@ -100,7 +100,7 @@ type CmdLineOpts struct {
 	iptablesResyncSeconds  int
 	iptablesForwardRules   bool
 	netConfPath            string
-	dnsEndpoints           string
+	dnsEndpoint            string
 	dnsToken               string
 	networkName            string
 	orgName                string
@@ -142,7 +142,7 @@ func init() {
 	flannelFlags.BoolVar(&opts.iptablesForwardRules, "iptables-forward-rules", true, "add default accept rules to FORWARD chain in iptables")
 	flannelFlags.StringVar(&opts.netConfPath, "net-config-path", "/etc/kube-flannel/net-conf.json", "path to the network configuration file")
 	// Add for Netswatch
-	flannelFlags.StringVar(&opts.dnsEndpoints, "dns-endpoints", "http://127.0.0.1:8500", "Consul DNS endpoint")
+	flannelFlags.StringVar(&opts.dnsEndpoint, "dns-endpoints", "http://127.0.0.1:8500", "Consul DNS endpoint")
 	flannelFlags.StringVar(&opts.dnsToken, "dns-token", "", "Consul DNS token")
 	flannelFlags.StringVar(&opts.networkName, "network-name", "netswatch", "Netswatch bridge network name")
 	flannelFlags.StringVar(&opts.orgName, "org-name", "default.com", "Netswatch organization name")
@@ -200,7 +200,9 @@ func newSubnetManager() (subnet.Manager, error) {
 }
 
 func main() {
+	// Add by Ted, just for fun :P
 	netswatch.Hello()
+
 	if opts.version {
 		fmt.Fprintln(os.Stderr, version.Version)
 		os.Exit(0)

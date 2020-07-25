@@ -15,4 +15,5 @@
 package netswatch
 
 type ConsulConfig struct {
+	Endpoint string
 }
