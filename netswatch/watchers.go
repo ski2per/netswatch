@@ -20,6 +20,14 @@ import (
 	"time"
 )
 
+type IP uint32
+
+type NodeMeta struct {
+	Type     string
+	Hostname string
+	HostIP   IP
+}
+
 func Hello() {
 	fmt.Println("一哭二闹三上悠亚")
 }

@@ -13,10 +13,13 @@ require (
 	github.com/bronze1man/goStrongswanVici v0.0.0-20171013065002-4d72634a2f11
 	github.com/coreos/etcd v3.1.11+incompatible
 	github.com/coreos/go-iptables v0.4.0
-	github.com/coreos/go-systemd v0.0.0-20161114122254-48702e0da86b
-	github.com/coreos/pkg v0.0.0-20160727233714-3ac0863d7acf
+	github.com/coreos/go-systemd v0.0.0-20161114122254-48702e0da86b // indirect
+	github.com/coreos/pkg v0.0.0-20160727233714-3ac0863d7acf // indirect
 	github.com/denverdino/aliyungo v0.0.0-20170629053852-f6cab0c35083
 	github.com/docker/distribution v2.7.1+incompatible // indirect
+	github.com/docker/docker v1.13.1
+	github.com/docker/go-connections v0.4.0 // indirect
+	github.com/docker/go-units v0.4.0 // indirect
 	github.com/emicklei/go-restful v1.1.4-0.20161212084525-09691a3b6378 // indirect
 	github.com/ghodss/yaml v0.0.0-20150909031657-73d445a93680 // indirect
 	github.com/go-ini/ini v1.28.1 // indirect
@@ -30,7 +33,6 @@ require (
 	github.com/howeyc/gopass v0.0.0-20160826175423-3ca23474a7c7 // indirect
 	github.com/imdario/mergo v0.0.0-20141206190957-6633656539c1 // indirect
 	github.com/jmespath/go-jmespath v0.0.0-20160803190731-bd40a432e4c7 // indirect
-	github.com/joho/godotenv v0.0.0-20161216230537-726cc8b906e3
 	github.com/jonboulle/clockwork v0.1.0
 	github.com/juju/errors v0.0.0-20170703010042-c7d06af17c68
 	github.com/juju/ratelimit v0.0.0-20151125201925-77ed1c8a0121 // indirect
@@ -38,6 +40,7 @@ require (
 	github.com/mailru/easyjson v0.0.0-20160728113105-d5b7844b561a // indirect
 	github.com/onsi/ginkgo v1.14.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rakelkar/gonetsh v0.0.0-20190719023240-501daadcadf8
 	github.com/sirupsen/logrus v1.0.6 // indirect
 	github.com/smartystreets/goconvey v1.6.4 // indirect
