@@ -100,6 +100,14 @@ type CmdLineOpts struct {
 	iptablesResyncSeconds  int
 	iptablesForwardRules   bool
 	netConfPath            string
+	dnsEndpoints           string
+	dnsToken               string
+	networkName            string
+	orgName                string
+	nodeName               string
+	nodeType               string
+	netdataEnabled         bool
+	netdataPort            int
 }
 
 var (
@@ -133,6 +141,16 @@ func init() {
 	flannelFlags.IntVar(&opts.iptablesResyncSeconds, "iptables-resync", 5, "resync period for iptables rules, in seconds")
 	flannelFlags.BoolVar(&opts.iptablesForwardRules, "iptables-forward-rules", true, "add default accept rules to FORWARD chain in iptables")
 	flannelFlags.StringVar(&opts.netConfPath, "net-config-path", "/etc/kube-flannel/net-conf.json", "path to the network configuration file")
+	// Add for Netswatch
+	flannelFlags.StringVar(&opts.dnsEndpoints, "dns-endpoints", "http://127.0.0.1:8500", "Consul DNS endpoint")
+	flannelFlags.StringVar(&opts.dnsToken, "dns-token", "", "Consul DNS token")
+	flannelFlags.StringVar(&opts.networkName, "network-name", "netswatch", "Netswatch bridge network name")
+	flannelFlags.StringVar(&opts.orgName, "org-name", "default.com", "Netswatch organization name")
+	flannelFlags.StringVar(&opts.nodeName, "node-name", "default-node", "Netswatch node name: 'default-node'(when hostname not found)")
+	flannelFlags.StringVar(&opts.nodeType, "node-type", "internal", "Netswatch routing type: router | node | internal")
+	flannelFlags.BoolVar(&opts.netdataEnabled, "netdata-enabled", false, "Extend Netdata service when registering")
+	flannelFlags.IntVar(&opts.netdataPort, "netdata-port", 19999, "Netdata metrics port")
+	// flannelFlags.StringVar(&opts.logLevel, "log-level", "info", "Logging level")
 
 	// glog will log to tmp files by default. override so all entries
 	// can flow into journald (if running under systemd)
@@ -188,8 +206,8 @@ func main() {
 		os.Exit(0)
 	}
 
-	// Read Flags from environment variable which prefixed with "FLANNELD"
-	flagutil.SetFlagsFromEnv(flannelFlags, "FLANNELD")
+	// Read Flags from environment variable which prefixed with "NW"
+	flagutil.SetFlagsFromEnv(flannelFlags, "NW")
 
 	// Validate flags
 	if opts.subnetLeaseRenewMargin >= 24*60 || opts.subnetLeaseRenewMargin <= 0 {

@@ -17,6 +17,7 @@ package netswatch
 import (
 	"context"
 	"fmt"
+	"os"
 	"time"
 )
 
@@ -49,7 +50,16 @@ func WatchNets(ctx context.Context) {
 	}
 }
 
-func GenerateNodeMeta() string {
-	data := "Hello Ted!"
-	return data
+func GenerateNodeMeta() *NodeMeta {
+	name, err := os.Hostname()
+	if err != nil {
+		fmt.Println("get hostname error")
+		fmt.Printf("%v", err)
+		name = "default-node"
+
+	}
+	meta := NodeMeta{Hostname: name}
+	meta.Type = "router"
+
+	return &meta
 }
