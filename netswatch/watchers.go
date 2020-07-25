@@ -26,14 +26,14 @@ func Hello() {
 
 func WatchNets(ctx context.Context) {
 	for {
-		fmt.Println("watching nets")
-		time.Sleep(2 * time.Second)
 
 		select {
 		case <-ctx.Done():
 			fmt.Println("done netswatch")
 			return
 		default:
+			fmt.Println("watching nets")
+			time.Sleep(2 * time.Second)
 			// case <-time.After(2 * time.Second):
 			// 	fmt.Println("1024")
 		}

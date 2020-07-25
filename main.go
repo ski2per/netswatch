@@ -259,6 +259,7 @@ func main() {
 	// to block until all the goroutines return . If those goroutines spawn other goroutines then they are responsible for
 	// blocking and returning only when cancel() is called.
 	ctx, cancel := context.WithCancel(context.Background())
+	// var wg sync.WaitGroup
 	wg := sync.WaitGroup{}
 
 	wg.Add(1)
