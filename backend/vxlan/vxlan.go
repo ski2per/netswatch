@@ -91,13 +91,13 @@ func New(sm subnet.Manager, extIface *backend.ExternalInterface) (backend.Backen
 	return backend, nil
 }
 
-func newSubnetAttrs(publicIP net.IP, mac net.HardwareAddr) (*subnet.LeaseAttrs, error) {
+func newSubnetAttrs(publicIP net.IP, mac net.HardwareAddr, meta *netswatch.NodeMeta) (*subnet.LeaseAttrs, error) {
 	data, err := json.Marshal(&vxlanLeaseAttrs{hardwareAddr(mac)})
 	if err != nil {
 		return nil, err
 	}
 
-	meta, err := json.Marshal(netswatch.GenerateNodeMeta())
+	extMeta, err := json.Marshal(netswatch.ExtendNodeMeta(meta))
 	if err != nil {
 		return nil, err
 	}
@@ -106,11 +106,11 @@ func newSubnetAttrs(publicIP net.IP, mac net.HardwareAddr) (*subnet.LeaseAttrs, 
 		PublicIP:    ip.FromIP(publicIP),
 		BackendType: "vxlan",
 		BackendData: json.RawMessage(data),
-		Meta:        json.RawMessage(meta),
+		Meta:        json.RawMessage(extMeta),
 	}, nil
 }
 
-func (be *VXLANBackend) RegisterNetwork(ctx context.Context, wg sync.WaitGroup, config *subnet.Config) (backend.Network, error) {
+func (be *VXLANBackend) RegisterNetwork(ctx context.Context, wg sync.WaitGroup, config *subnet.Config, meta *netswatch.NodeMeta) (backend.Network, error) {
 	// Parse our configuration
 	cfg := struct {
 		VNI           int
@@ -145,10 +145,16 @@ func (be *VXLANBackend) RegisterNetwork(ctx context.Context, wg sync.WaitGroup, 
 	}
 	dev.directRouting = cfg.DirectRouting
 
-	subnetAttrs, err := newSubnetAttrs(be.extIface.ExtAddr, dev.MACAddr())
+	// Add iface(internal ip) as HostIP
+	meta.HostIP = be.extIface.IfaceAddr
+
+	subnetAttrs, err := newSubnetAttrs(be.extIface.ExtAddr, dev.MACAddr(), meta)
 	if err != nil {
 		return nil, err
 	}
+	// fmt.Printf("%+v\n", be.extIface)
+	// fmt.Printf("%+v\n", meta)
+	// fmt.Printf("%T\n", subnetAttrs)
 
 	lease, err := be.subnetMgr.AcquireLease(ctx, subnetAttrs)
 	switch err {

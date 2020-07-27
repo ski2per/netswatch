@@ -17,6 +17,7 @@ package netswatch
 import (
 	"context"
 	"fmt"
+	"net"
 	"os"
 	"time"
 )
@@ -24,9 +25,10 @@ import (
 type IP uint32
 
 type NodeMeta struct {
-	Type     string
-	Hostname string
-	HostIP   string
+	OrgName  string
+	NodeType string
+	NodeName string
+	HostIP   net.IP
 }
 
 func Hello() {
@@ -50,16 +52,17 @@ func WatchNets(ctx context.Context) {
 	}
 }
 
-func GenerateNodeMeta() *NodeMeta {
-	name, err := os.Hostname()
-	if err != nil {
-		fmt.Println("get hostname error")
-		fmt.Printf("%v", err)
-		name = "default-node"
-
+func ExtendNodeMeta(meta *NodeMeta) *NodeMeta {
+	// If meta.NodeName is not set, then use hostname for node name.
+	if len(meta.NodeName) == 0 {
+		name, err := os.Hostname()
+		if err != nil {
+			fmt.Println("get hostname error")
+			fmt.Printf("%v", err)
+			name = "default-node"
+		}
+		meta.NodeName = name
 	}
-	meta := NodeMeta{Hostname: name}
-	meta.Type = "router"
 
-	return &meta
+	return meta
 }

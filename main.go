@@ -48,15 +48,18 @@ import (
 
 	// Backends need to be imported for their init() to get executed and them to register
 	"github.com/coreos/flannel/backend"
-	_ "github.com/coreos/flannel/backend/alivpc"
-	_ "github.com/coreos/flannel/backend/alloc"
-	_ "github.com/coreos/flannel/backend/awsvpc"
-	_ "github.com/coreos/flannel/backend/extension"
-	_ "github.com/coreos/flannel/backend/gce"
-	_ "github.com/coreos/flannel/backend/hostgw"
-	_ "github.com/coreos/flannel/backend/ipip"
-	_ "github.com/coreos/flannel/backend/ipsec"
-	_ "github.com/coreos/flannel/backend/udp"
+
+	// Hidden by Ted
+	// _ "github.com/coreos/flannel/backend/alivpc"
+	// _ "github.com/coreos/flannel/backend/alloc"
+	// _ "github.com/coreos/flannel/backend/awsvpc"
+	// _ "github.com/coreos/flannel/backend/extension"
+	// _ "github.com/coreos/flannel/backend/gce"
+	// _ "github.com/coreos/flannel/backend/hostgw"
+	// _ "github.com/coreos/flannel/backend/ipip"
+	// _ "github.com/coreos/flannel/backend/ipsec"
+	// _ "github.com/coreos/flannel/backend/udp"
+
 	_ "github.com/coreos/flannel/backend/vxlan"
 	"github.com/coreos/go-systemd/daemon"
 )
@@ -146,7 +149,7 @@ func init() {
 	flannelFlags.StringVar(&opts.dnsToken, "dns-token", "", "Consul DNS token")
 	flannelFlags.StringVar(&opts.networkName, "network-name", "netswatch", "Netswatch bridge network name")
 	flannelFlags.StringVar(&opts.orgName, "org-name", "default.com", "Netswatch organization name")
-	flannelFlags.StringVar(&opts.nodeName, "node-name", "default-node", "Netswatch node name: 'default-node'(when hostname not found)")
+	flannelFlags.StringVar(&opts.nodeName, "node-name", "", "Netswatch node name: 'default-node'(when hostname not found)")
 	flannelFlags.StringVar(&opts.nodeType, "node-type", "internal", "Netswatch routing type: router | node | internal")
 	flannelFlags.BoolVar(&opts.netdataEnabled, "netdata-enabled", false, "Extend Netdata service when registering")
 	flannelFlags.IntVar(&opts.netdataPort, "netdata-port", 19999, "Netdata metrics port")
@@ -317,7 +320,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	bn, err := be.RegisterNetwork(ctx, wg, config)
+	// Add info from opts
+	meta := &netswatch.NodeMeta{
+		OrgName:  opts.orgName,
+		NodeType: opts.nodeType,
+		NodeName: opts.nodeName, // "nodeType" will determined by the existence of hostname
+	}
+
+	bn, err := be.RegisterNetwork(ctx, wg, config, meta)
 	if err != nil {
 		log.Errorf("Error registering network: %s", err)
 		cancel()

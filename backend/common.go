@@ -20,6 +20,7 @@ import (
 
 	"golang.org/x/net/context"
 
+	"github.com/coreos/flannel/netswatch"
 	"github.com/coreos/flannel/subnet"
 )
 
@@ -35,7 +36,7 @@ type ExternalInterface struct {
 // needed.
 type Backend interface {
 	// Called when the backend should create or begin managing a new network
-	RegisterNetwork(ctx context.Context, wg sync.WaitGroup, config *subnet.Config) (Network, error)
+	RegisterNetwork(ctx context.Context, wg sync.WaitGroup, config *subnet.Config, meta *netswatch.NodeMeta) (Network, error)
 }
 
 type Network interface {
