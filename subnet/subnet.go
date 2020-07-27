@@ -37,7 +37,7 @@ type LeaseAttrs struct {
 	PublicIP    ip.IP4
 	BackendType string          `json:",omitempty"`
 	BackendData json.RawMessage `json:",omitempty"`
-	Meta        string
+	Meta        json.RawMessage `json:",omitempty"`
 }
 
 type Lease struct {

@@ -30,6 +30,7 @@ require (
 	github.com/gogo/protobuf v0.0.0-20160824171236-909568be09de // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/google/gofuzz v0.0.0-20161122191042-44d81051d367 // indirect
+	github.com/hashicorp/consul/api v1.5.0
 	github.com/howeyc/gopass v0.0.0-20160826175423-3ca23474a7c7 // indirect
 	github.com/imdario/mergo v0.0.0-20141206190957-6633656539c1 // indirect
 	github.com/jmespath/go-jmespath v0.0.0-20160803190731-bd40a432e4c7 // indirect

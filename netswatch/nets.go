@@ -26,7 +26,7 @@ type IP uint32
 type NodeMeta struct {
 	Type     string
 	Hostname string
-	HostIP   IP
+	HostIP   string
 }
 
 func Hello() {
