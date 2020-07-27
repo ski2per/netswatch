@@ -20,6 +20,8 @@ import (
 	"net"
 	"os"
 	"time"
+
+	"github.com/coreos/flannel/subnet/etcdv2"
 )
 
 type IP uint32
@@ -35,15 +37,15 @@ func Hello() {
 	fmt.Println("一哭二闹三上悠亚")
 }
 
-func WatchNets(ctx context.Context) {
+func WatchNets(ctx context.Context, sm *etcdv2.LocalManager) {
 	for {
-
 		select {
 		case <-ctx.Done():
 			fmt.Println("done netswatch")
 			return
 		default:
 			fmt.Println("watching nets")
+			fmt.Printf("%T\n", sm.GetSubnets(ctx))
 			time.Sleep(2 * time.Second)
 			// case <-time.After(2 * time.Second):
 			// 	fmt.Println("1024")

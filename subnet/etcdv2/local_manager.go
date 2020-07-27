@@ -384,3 +384,8 @@ func (m *LocalManager) Name() string {
 	}
 	return fmt.Sprintf("Etcd Local Manager with Previous Subnet: %s", previousSubnet)
 }
+
+func (m *LocalManager) GetSubnets(ctx context.Context) ([]Lease, error) {
+	leases, _, err := m.registry.getSubnets(ctx)
+	return leases, err
+}

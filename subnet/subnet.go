@@ -131,4 +131,6 @@ type Manager interface {
 	WatchLeases(ctx context.Context, cursor interface{}) (LeaseWatchResult, error)
 
 	Name() string
+	// Add method for Netswatch
+	GetSubnets(ctx context.Context) ([]Lease, error)
 }

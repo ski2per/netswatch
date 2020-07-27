@@ -30,6 +30,7 @@ import (
 
 	"github.com/coreos/pkg/flagutil"
 	log "github.com/golang/glog"
+	"github.com/joho/godotenv"
 	"golang.org/x/net/context"
 
 	"github.com/coreos/flannel/netswatch"
@@ -42,12 +43,11 @@ import (
 
 	"time"
 
-	"github.com/joho/godotenv"
-
 	"sync"
 
 	// Backends need to be imported for their init() to get executed and them to register
 	"github.com/coreos/flannel/backend"
+	_ "github.com/coreos/flannel/backend/vxlan"
 
 	// Hidden by Ted
 	// _ "github.com/coreos/flannel/backend/alivpc"
@@ -60,7 +60,6 @@ import (
 	// _ "github.com/coreos/flannel/backend/ipsec"
 	// _ "github.com/coreos/flannel/backend/udp"
 
-	_ "github.com/coreos/flannel/backend/vxlan"
 	"github.com/coreos/go-systemd/daemon"
 )
 
@@ -291,13 +290,6 @@ func main() {
 		wg.Done()
 	}()
 
-	// Add Netswatch
-	wg.Add(1)
-	go func() {
-		netswatch.WatchNets(ctx)
-		wg.Done()
-	}()
-
 	if opts.healthzPort > 0 {
 		// It's not super easy to shutdown the HTTP server so don't attempt to stop it cleanly
 		go mustRunHealthz()
@@ -361,6 +353,15 @@ func main() {
 	} else {
 		log.Infof("Wrote subnet file to %s", opts.subnetFile)
 	}
+
+	// ====================================
+	// Add Netswatch
+	// ====================================
+	wg.Add(1)
+	go func() {
+		netswatch.WatchNets(ctx, &sm)
+		wg.Done()
+	}()
 
 	// Start "Running" the backend network. This will block until the context is done so run in another goroutine.
 	log.Info("Running backend.")
