@@ -95,10 +95,10 @@ func WatchNets(ctx context.Context, sm subnet.Manager, sn ip.IP4Net, netName str
 	for {
 		select {
 		case <-ctx.Done():
-			fmt.Println("done netswatch")
+			fmt.Println("Done Watching Networks")
 			return
 		default:
-			fmt.Println("watching nets")
+			fmt.Println("Sync Networks")
 			createBridge(ctx, netName, sn)
 
 			// leases, err := sm.GetSubnets(ctx)

@@ -357,15 +357,20 @@ func main() {
 	}
 
 	// ====================================
-	// Add Netswatch
-	// ====================================
+	//              Netswatch
 	subnetFromEnv := ReadCIDRFromSubnetFile(opts.subnetFile, "FLANNEL_SUBNET")
-	fmt.Printf("%v", subnetFromEnv)
 	wg.Add(1)
 	go func() {
 		netswatch.WatchNets(ctx, sm, subnetFromEnv, opts.networkName)
 		wg.Done()
 	}()
+
+	wg.Add(1)
+	go func() {
+		netswatch.WatchCtrs(ctx)
+		wg.Done()
+	}()
+	// ====================================
 
 	// Start "Running" the backend network. This will block until the context is done so run in another goroutine.
 	log.Info("Running backend.")

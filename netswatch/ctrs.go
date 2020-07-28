@@ -17,7 +17,6 @@ package netswatch
 import (
 	"context"
 	"fmt"
-	"sync"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
@@ -37,7 +36,7 @@ func listCtrInNetwork(ctx context.Context) {
 	fmt.Printf("%+v", nr)
 }
 
-func ListContainers(ctx context.Context) {
+func listContainers(ctx context.Context) {
 	listCtrInNetwork(ctx)
 
 	// cli, err := client.NewEnvClient()
@@ -56,7 +55,8 @@ func ListContainers(ctx context.Context) {
 
 }
 
-func WatchCtrEvents(ctx context.Context, wg *sync.WaitGroup) {
+func WatchCtrs(ctx context.Context) {
+	fmt.Println("Sync Containers")
 	filter := filters.NewArgs()
 	// Watch Docker events with type: "container", "network"
 	filter.Add("type", "container")
@@ -78,8 +78,9 @@ func WatchCtrEvents(ctx context.Context, wg *sync.WaitGroup) {
 	evtCh, _ := cli.Events(ctx, types.EventsOptions{
 		Filters: filter,
 	})
+
 	for evt := range evtCh {
 		fmt.Println(evt.Type)
-		fmt.Printf("%+v", evt)
+		fmt.Printf("%+v\n", evt)
 	}
 }
