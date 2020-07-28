@@ -145,7 +145,9 @@ func (be *VXLANBackend) RegisterNetwork(ctx context.Context, wg sync.WaitGroup, 
 	}
 	dev.directRouting = cfg.DirectRouting
 
+	// ==============Neswatch==============
 	// Add iface(internal ip) as HostIP
+	// ====================================
 	meta.HostIP = be.extIface.IfaceAddr
 
 	subnetAttrs, err := newSubnetAttrs(be.extIface.ExtAddr, dev.MACAddr(), meta)

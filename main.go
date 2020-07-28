@@ -38,7 +38,6 @@ import (
 	"github.com/coreos/flannel/pkg/ip"
 	"github.com/coreos/flannel/subnet"
 	"github.com/coreos/flannel/subnet/etcdv2"
-	"github.com/coreos/flannel/subnet/kube"
 	"github.com/coreos/flannel/version"
 
 	"time"
@@ -75,19 +74,21 @@ func (t *flagSlice) Set(val string) error {
 }
 
 type CmdLineOpts struct {
-	etcdEndpoints          string
-	etcdPrefix             string
-	etcdKeyfile            string
-	etcdCertfile           string
-	etcdCAFile             string
-	etcdUsername           string
-	etcdPassword           string
-	help                   bool
-	version                bool
-	kubeSubnetMgr          bool
-	kubeApiUrl             string
-	kubeAnnotationPrefix   string
-	kubeConfigFile         string
+	etcdEndpoints string
+	etcdPrefix    string
+	etcdKeyfile   string
+	etcdCertfile  string
+	etcdCAFile    string
+	etcdUsername  string
+	etcdPassword  string
+	help          bool
+	version       bool
+	// Hidden by Ted for Netswatch
+	// kubeSubnetMgr          bool
+	// kubeApiUrl             string
+	// kubeAnnotationPrefix   string
+	// kubeConfigFile         string
+	// netConfPath            string
 	iface                  flagSlice
 	ifaceRegex             flagSlice
 	ipMasq                 bool
@@ -101,7 +102,6 @@ type CmdLineOpts struct {
 	charonViciUri          string
 	iptablesResyncSeconds  int
 	iptablesForwardRules   bool
-	netConfPath            string
 	dnsEndpoint            string
 	dnsToken               string
 	networkName            string
@@ -133,16 +133,17 @@ func init() {
 	flannelFlags.StringVar(&opts.publicIP, "public-ip", "", "IP accessible by other nodes for inter-host communication")
 	flannelFlags.IntVar(&opts.subnetLeaseRenewMargin, "subnet-lease-renew-margin", 60, "subnet lease renewal margin, in minutes, ranging from 1 to 1439")
 	flannelFlags.BoolVar(&opts.ipMasq, "ip-masq", false, "setup IP masquerade rule for traffic destined outside of overlay network")
-	flannelFlags.BoolVar(&opts.kubeSubnetMgr, "kube-subnet-mgr", false, "contact the Kubernetes API for subnet assignment instead of etcd.")
-	flannelFlags.StringVar(&opts.kubeApiUrl, "kube-api-url", "", "Kubernetes API server URL. Does not need to be specified if flannel is running in a pod.")
-	flannelFlags.StringVar(&opts.kubeAnnotationPrefix, "kube-annotation-prefix", "flannel.alpha.coreos.com", `Kubernetes annotation prefix. Can contain single slash "/", otherwise it will be appended at the end.`)
-	flannelFlags.StringVar(&opts.kubeConfigFile, "kubeconfig-file", "", "kubeconfig file location. Does not need to be specified if flannel is running in a pod.")
+	// Hidden by Ted for Netswatch
+	// flannelFlags.BoolVar(&opts.kubeSubnetMgr, "kube-subnet-mgr", false, "contact the Kubernetes API for subnet assignment instead of etcd.")
+	// flannelFlags.StringVar(&opts.kubeApiUrl, "kube-api-url", "", "Kubernetes API server URL. Does not need to be specified if flannel is running in a pod.")
+	// flannelFlags.StringVar(&opts.kubeAnnotationPrefix, "kube-annotation-prefix", "flannel.alpha.coreos.com", `Kubernetes annotation prefix. Can contain single slash "/", otherwise it will be appended at the end.`)
+	// flannelFlags.StringVar(&opts.kubeConfigFile, "kubeconfig-file", "", "kubeconfig file location. Does not need to be specified if flannel is running in a pod.")
+	// flannelFlags.StringVar(&opts.netConfPath, "net-config-path", "/etc/kube-flannel/net-conf.json", "path to the network configuration file")
 	flannelFlags.BoolVar(&opts.version, "version", false, "print version and exit")
 	flannelFlags.StringVar(&opts.healthzIP, "healthz-ip", "0.0.0.0", "the IP address for healthz server to listen")
 	flannelFlags.IntVar(&opts.healthzPort, "healthz-port", 0, "the port for healthz server to listen(0 to disable)")
 	flannelFlags.IntVar(&opts.iptablesResyncSeconds, "iptables-resync", 5, "resync period for iptables rules, in seconds")
 	flannelFlags.BoolVar(&opts.iptablesForwardRules, "iptables-forward-rules", true, "add default accept rules to FORWARD chain in iptables")
-	flannelFlags.StringVar(&opts.netConfPath, "net-config-path", "/etc/kube-flannel/net-conf.json", "path to the network configuration file")
 	// Add for Netswatch
 	flannelFlags.StringVar(&opts.dnsEndpoint, "dns-endpoints", "http://127.0.0.1:8500", "Consul DNS endpoint")
 	flannelFlags.StringVar(&opts.dnsToken, "dns-token", "", "Consul DNS token")
@@ -181,9 +182,10 @@ func usage() {
 }
 
 func newSubnetManager() (subnet.Manager, error) {
-	if opts.kubeSubnetMgr {
-		return kube.NewSubnetManager(opts.kubeApiUrl, opts.kubeConfigFile, opts.kubeAnnotationPrefix, opts.netConfPath)
-	}
+	// Hidden by Ted for Netswatch
+	// if opts.kubeSubnetMgr {
+	// 	return kube.NewSubnetManager(opts.kubeApiUrl, opts.kubeConfigFile, opts.kubeAnnotationPrefix, opts.netConfPath)
+	// }
 
 	cfg := &etcdv2.EtcdConfig{
 		Endpoints: strings.Split(opts.etcdEndpoints, ","),
@@ -357,9 +359,11 @@ func main() {
 	// ====================================
 	// Add Netswatch
 	// ====================================
+	subnetFromEnv := ReadCIDRFromSubnetFile(opts.subnetFile, "FLANNEL_SUBNET")
+	fmt.Printf("%v", subnetFromEnv)
 	wg.Add(1)
 	go func() {
-		netswatch.WatchNets(ctx, &sm)
+		netswatch.WatchNets(ctx, sm, subnetFromEnv, opts.networkName)
 		wg.Done()
 	}()
 
@@ -373,13 +377,18 @@ func main() {
 
 	daemon.SdNotify(false, "READY=1")
 
-	// Kube subnet mgr doesn't lease the subnet for this node - it just uses the podCidr that's already assigned.
-	if !opts.kubeSubnetMgr {
-		err = MonitorLease(ctx, sm, bn, &wg)
-		if err == errInterrupted {
-			// The lease was "revoked" - shut everything down
-			cancel()
-		}
+	// // Kube subnet mgr doesn't lease the subnet for this node - it just uses the podCidr that's already assigned.
+	// if !opts.kubeSubnetMgr {
+	// 	err = MonitorLease(ctx, sm, bn, &wg)
+	// 	if err == errInterrupted {
+	// 		// The lease was "revoked" - shut everything down
+	// 		cancel()
+	// 	}
+	// }
+	err = MonitorLease(ctx, sm, bn, &wg)
+	if err == errInterrupted {
+		// The lease was "revoked" - shut everything down
+		cancel()
 	}
 
 	log.Info("Waiting for all goroutines to exit")

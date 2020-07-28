@@ -18,7 +18,6 @@ import (
 	"context"
 	"fmt"
 	"sync"
-	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
@@ -82,12 +81,5 @@ func WatchCtrEvents(ctx context.Context, wg *sync.WaitGroup) {
 	for evt := range evtCh {
 		fmt.Println(evt.Type)
 		fmt.Printf("%+v", evt)
-	}
-}
-
-func WatchNetwork(ctx context.Context, wg *sync.WaitGroup) {
-	for {
-		fmt.Println("watching network")
-		time.Sleep(time.Second * 2)
 	}
 }
