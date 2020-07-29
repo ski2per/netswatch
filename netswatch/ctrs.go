@@ -36,10 +36,23 @@ func ListJoinedCtrs(ctx context.Context, name string) {
 		panic(err)
 	}
 
-	var containers []types.ContainerJSON
+	fmt.Println(len(nr.Containers))
 
-	for cId, _ := range nr.Containers {
-		cli.ContainerInspect(ctx, cId)
+	containers := make([]types.ContainerJSON, len(nr.Containers))
+
+	for cID, _ := range nr.Containers {
+		ctr, err := cli.ContainerInspect(ctx, cID)
+		if err != nil {
+			panic(nil)
+		}
+
+		containers = append(containers, ctr)
+	}
+
+	fmt.Println(len(containers))
+	fmt.Println(cap(containers))
+	for _, c := range containers {
+		fmt.Printf("%+v\n", c)
 	}
 	time.Sleep(5 * time.Second)
 }
