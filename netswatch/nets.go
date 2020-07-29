@@ -74,10 +74,17 @@ func createBridge(ctx context.Context, brName string, sn ip.IP4Net) {
 
 	ncResp, err := cli.NetworkCreate(ctx, brName, nc)
 	// Network with "brName" exists, check its IPAM
+	// Todo:
+	// 	* Add logic to error type
+
 	if err != nil {
 		log.Info(err)
 		nr, _ := cli.NetworkInspect(ctx, brName)
-		runningSubnet := nr.IPAM.Config[0].Subnet
+
+		var runningSubnet string
+		if len(nr.IPAM.Config) > 0 {
+			runningSubnet = nr.IPAM.Config[0].Subnet
+		}
 
 		if runningSubnet == subnet {
 			log.Infof("Bridge network <%v> synchronized with Flannel", brName)
@@ -91,14 +98,14 @@ func createBridge(ctx context.Context, brName string, sn ip.IP4Net) {
 	}
 }
 
-func WatchNets(ctx context.Context, sm subnet.Manager, sn ip.IP4Net, netName string) {
+func WatchNets(ctx context.Context, sm subnet.Manager, sn ip.IP4Net, netName string, loop int) {
 	for {
 		select {
 		case <-ctx.Done():
 			fmt.Println("Done Watching Networks")
 			return
 		default:
-			fmt.Println("Sync Networks")
+			fmt.Println("[ʕ•o•ʔ]Sync Networks")
 			createBridge(ctx, netName, sn)
 
 			// leases, err := sm.GetSubnets(ctx)

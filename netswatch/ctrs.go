@@ -17,27 +17,35 @@ package netswatch
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
 )
 
-func listCtrInNetwork(ctx context.Context) {
+func ListJoinedCtrs(ctx context.Context, name string) {
+	// List containers which joined Netswatch bridge network
 	cli, err := client.NewEnvClient()
 	if err != nil {
 		panic(err)
 	}
 
-	nr, err := cli.NetworkInspect(ctx, "sob")
+	nr, err := cli.NetworkInspect(ctx, name)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("%+v", nr)
+
+	var containers []types.ContainerJSON
+
+	for cId, _ := range nr.Containers {
+		cli.ContainerInspect(ctx, cId)
+	}
+	time.Sleep(5 * time.Second)
 }
 
 func listContainers(ctx context.Context) {
-	listCtrInNetwork(ctx)
+	// listCtrInNetwork(ctx)
 
 	// cli, err := client.NewEnvClient()
 	// if err != nil {
@@ -55,19 +63,20 @@ func listContainers(ctx context.Context) {
 
 }
 
-func WatchCtrs(ctx context.Context) {
-	fmt.Println("Sync Containers")
+func WatchCtrs(ctx context.Context, netName string, loop int) {
+	fmt.Println("[ʕ•o•ʔ]Sync Containers")
+
 	filter := filters.NewArgs()
 	// Watch Docker events with type: "container", "network"
-	filter.Add("type", "container")
+	// filter.Add("type", "container")
 	filter.Add("type", "network")
 	// Only watch events below
-	filter.Add("event", "start")
-	filter.Add("event", "stop")
-	filter.Add("event", "restart")
+	// filter.Add("event", "start")
+	// filter.Add("event", "stop")
+	// filter.Add("event", "restart")
 	filter.Add("event", "connect")
 	filter.Add("event", "disconnect")
-	filter.Add("event", "destroy")
+	// filter.Add("event", "destroy")
 
 	cli, err := client.NewEnvClient()
 	if err != nil {
@@ -80,7 +89,10 @@ func WatchCtrs(ctx context.Context) {
 	})
 
 	for evt := range evtCh {
-		fmt.Println(evt.Type)
-		fmt.Printf("%+v\n", evt)
+		evtNetName := evt.Actor.Attributes["name"]
+		if evtNetName == netName {
+			fmt.Println("DETECT network connect/disconnect event")
+			// listJoinedCtrs(ctx, netName)
+		}
 	}
 }

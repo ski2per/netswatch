@@ -110,6 +110,7 @@ type CmdLineOpts struct {
 	nodeType               string
 	netdataEnabled         bool
 	netdataPort            int
+	loop                   int
 }
 
 var (
@@ -153,6 +154,7 @@ func init() {
 	flannelFlags.StringVar(&opts.nodeType, "node-type", "internal", "Netswatch routing type: router | node | internal")
 	flannelFlags.BoolVar(&opts.netdataEnabled, "netdata-enabled", false, "Extend Netdata service when registering")
 	flannelFlags.IntVar(&opts.netdataPort, "netdata-port", 19999, "Netdata metrics port")
+	flannelFlags.IntVar(&opts.loop, "loop", 60, "Netswatch loop interval")
 	// flannelFlags.StringVar(&opts.logLevel, "log-level", "info", "Logging level")
 
 	// glog will log to tmp files by default. override so all entries
@@ -361,13 +363,14 @@ func main() {
 	subnetFromEnv := ReadCIDRFromSubnetFile(opts.subnetFile, "FLANNEL_SUBNET")
 	wg.Add(1)
 	go func() {
-		netswatch.WatchNets(ctx, sm, subnetFromEnv, opts.networkName)
+		netswatch.WatchNets(ctx, sm, subnetFromEnv, opts.networkName, opts.loop)
 		wg.Done()
 	}()
 
 	wg.Add(1)
 	go func() {
-		netswatch.WatchCtrs(ctx)
+		// netswatch.WatchCtrs(ctx, opts.networkName, opts.loop)
+		netswatch.ListJoinedCtrs(ctx, opts.networkName)
 		wg.Done()
 	}()
 	// ====================================
