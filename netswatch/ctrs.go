@@ -44,7 +44,7 @@ func getCtrName(ctr *types.ContainerJSON) string {
 	return strings.TrimPrefix(ctr.Name, "/") // trim prefix "/"
 }
 
-func listJoinedCtrs(ctx context.Context, name string) []types.ContainerJSON {
+func listJoinedCtrs(ctx context.Context, name string) map[string]types.ContainerJSON {
 	// List containers which joined Netswatch bridge network
 	cli, err := client.NewEnvClient()
 	if err != nil {
@@ -56,16 +56,14 @@ func listJoinedCtrs(ctx context.Context, name string) []types.ContainerJSON {
 		panic(err)
 	}
 
-	containers := make([]types.ContainerJSON, len(nr.Containers))
+	containers := make(map[string]types.ContainerJSON)
 
-	i := 0
 	for cID := range nr.Containers {
 		ctr, err := cli.ContainerInspect(ctx, cID)
 		if err != nil {
 			panic(nil)
 		}
-		containers[i] = ctr
-		i++
+		containers[cID] = ctr
 	}
 	return containers
 }
@@ -89,20 +87,38 @@ func listContainers(ctx context.Context) {
 
 }
 
+func getKeys(m map[string]interface{}) []string {
+	keys := make([]string, len(m))
+
+	i := 0
+	for k := range m {
+		keys[i] = k
+		i++
+	}
+	return keys
+
+}
+
 func Debug(ctx context.Context, netName string, dns DNSRegistry, loop int) {
 	for {
 
 		containers := listJoinedCtrs(ctx, netName)
-		for _, ctr := range containers {
-			ctrID := ctr.ID
-			ctrIP := ctr.NetworkSettings.Networks[netName].IPAddress
-			ctrName := getCtrName(&ctr)
+		services := dns.listSvcs()
 
-			fmt.Println(ctrID)
-			fmt.Println(ctrIP)
-			fmt.Println(ctrName)
-			fmt.Println("-----------------")
-		}
+		fmt.Println(getKeys(containers))
+		// fmt.Println(services)
+		// fmt.Println(len(services))
+		// for _, ctr := range containers {
+		// for _, ctr := range containers {
+		// 	ctrID := ctr.ID
+		// 	ctrIP := ctr.NetworkSettings.Networks[netName].IPAddress
+		// 	ctrName := getCtrName(&ctr)
+
+		// 	fmt.Println(ctrID)
+		// 	fmt.Println(ctrIP)
+		// 	fmt.Println(ctrName)
+		// 	fmt.Println("-----------------")
+		// }
 		time.Sleep(5 * time.Second)
 	}
 }

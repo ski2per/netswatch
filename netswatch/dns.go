@@ -15,8 +15,6 @@
 package netswatch
 
 import (
-	"fmt"
-
 	log "github.com/golang/glog"
 	consul "github.com/hashicorp/consul/api"
 )
@@ -33,7 +31,7 @@ type DNSRegistry struct {
 	Token    string
 }
 
-func (dnsr *DNSRegistry) listSvcs() {
+func (dnsr *DNSRegistry) listSvcs() map[string]*consul.AgentService {
 	cli, err := consul.NewClient(&consul.Config{
 		Address: dnsr.Endpoint,
 	})
@@ -46,8 +44,7 @@ func (dnsr *DNSRegistry) listSvcs() {
 	if err != nil {
 		log.Error(err)
 	}
-
-	fmt.Printf("%+v\n", svcs)
+	return svcs
 }
 
 func (dnsr *DNSRegistry) registerSvc() {
