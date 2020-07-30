@@ -69,7 +69,7 @@ func listContainers(ctx context.Context) {
 
 }
 
-func WatchCtrs(ctx context.Context, netName string, loop int) {
+func WatchCtrs(ctx context.Context, netName string, dns DNSRegistry, loop int) {
 	// Main func for watching
 	fmt.Println("ʕ•o•ʔ Containers' watch begins")
 
@@ -106,5 +106,7 @@ func WatchCtrs(ctx context.Context, netName string, loop int) {
 		for _, ctr := range containers {
 			fmt.Printf("%+v\n", ctr)
 		}
+
+		dns.listSvcs()
 	}
 }
