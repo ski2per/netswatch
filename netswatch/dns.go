@@ -38,7 +38,7 @@ func (dnsr *DNSRegistry) listSvcs() {
 		Address: dnsr.Endpoint,
 	})
 	if err != nil {
-		panic(err)
+		log.Error(err)
 	}
 
 	agent := cli.Agent()
@@ -47,7 +47,7 @@ func (dnsr *DNSRegistry) listSvcs() {
 		log.Error(err)
 	}
 
-	fmt.Printf("%+v", svcs)
+	fmt.Printf("%+v\n", svcs)
 }
 
 func (dnsr *DNSRegistry) registerSvc() {

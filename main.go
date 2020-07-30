@@ -374,7 +374,8 @@ func main() {
 	}
 	wg.Add(1)
 	go func() {
-		netswatch.WatchCtrs(ctx, opts.networkName, dns, opts.loop)
+		// netswatch.WatchCtrs(ctx, opts.networkName, dns, opts.loop)
+		netswatch.Debug(ctx, opts.networkName, dns, opts.loop)
 		wg.Done()
 	}()
 	// ------------------------------------
