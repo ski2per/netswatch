@@ -17,14 +17,13 @@ package netswatch
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
 )
 
-func ListJoinedCtrs(ctx context.Context, name string) {
+func listJoinedCtrs(ctx context.Context, name string) []types.ContainerJSON {
 	// List containers which joined Netswatch bridge network
 	cli, err := client.NewEnvClient()
 	if err != nil {
@@ -40,21 +39,15 @@ func ListJoinedCtrs(ctx context.Context, name string) {
 
 	containers := make([]types.ContainerJSON, len(nr.Containers))
 
-	for cID, _ := range nr.Containers {
+	i := 0
+	for cID := range nr.Containers {
 		ctr, err := cli.ContainerInspect(ctx, cID)
 		if err != nil {
 			panic(nil)
 		}
-
-		containers = append(containers, ctr)
+		containers[i] = ctr
 	}
-
-	fmt.Println(len(containers))
-	fmt.Println(cap(containers))
-	for _, c := range containers {
-		fmt.Printf("%+v\n", c)
-	}
-	time.Sleep(5 * time.Second)
+	return containers
 }
 
 func listContainers(ctx context.Context) {
@@ -77,7 +70,8 @@ func listContainers(ctx context.Context) {
 }
 
 func WatchCtrs(ctx context.Context, netName string, loop int) {
-	fmt.Println("[ʕ•o•ʔ]Sync Containers")
+	// Main func for watching
+	fmt.Println("ʕ•o•ʔ Containers' watch begins")
 
 	filter := filters.NewArgs()
 	// Watch Docker events with type: "container", "network"
@@ -106,6 +100,11 @@ func WatchCtrs(ctx context.Context, netName string, loop int) {
 		if evtNetName == netName {
 			fmt.Println("DETECT network connect/disconnect event")
 			// listJoinedCtrs(ctx, netName)
+		}
+
+		containers := listJoinedCtrs(ctx, netName)
+		for _, ctr := range containers {
+			fmt.Printf("%+v\n", ctr)
 		}
 	}
 }

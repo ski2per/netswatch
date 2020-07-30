@@ -369,8 +369,7 @@ func main() {
 
 	wg.Add(1)
 	go func() {
-		// netswatch.WatchCtrs(ctx, opts.networkName, opts.loop)
-		netswatch.ListJoinedCtrs(ctx, opts.networkName)
+		netswatch.WatchCtrs(ctx, opts.networkName, opts.loop)
 		wg.Done()
 	}()
 	// ====================================
