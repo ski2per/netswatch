@@ -62,7 +62,10 @@ func (dnsr *DNSRegistry) CreateAgent() {
 }
 
 func (dnsr *DNSRegistry) listSvcIDs() []string {
-	svcs, err := dnsr.Agent.Services()
+	// Get service IDs from Consul
+	filter := fmt.Sprintf("Tags contains %s and Tags contains %s", dnsr.OrgName, dnsr.NodeName)
+	fmt.Println(filter)
+	svcs, err := dnsr.Agent.ServicesWithFilter(filter)
 	if err != nil {
 		log.Error(err)
 	}
@@ -83,13 +86,12 @@ func (dnsr *DNSRegistry) registerSvc(ctr *types.ContainerJSON) {
 	svc.ID = ctr.ID
 	svc.Name = fmt.Sprintf("%s-%s-%s", formatServiceString(dnsr.OrgName), dnsr.NodeName, getCtrName(ctr))
 	svc.Address = ctr.NetworkSettings.Networks[dnsr.NetworkName].IPAddress
-
-	tags := []string{dnsr.OrgName, dnsr.NodeName}
+	svc.Tags = []string{dnsr.OrgName, dnsr.NodeName}
+	// tags := []string{dnsr.OrgName, dnsr.NodeName}
 
 	// Extend service with Netdata data when NW_NETDATA_ENABLED is true
 	if dnsr.NetdataEnabled {
-		tags = append(tags, "netdata")
-		svc.Tags = tags
+		svc.Tags = append(svc.Tags, "netdata")
 		svc.Port = dnsr.NetdataPort
 		svcMeta := map[string]string{
 			"host":    dnsr.NodeName,
@@ -102,7 +104,7 @@ func (dnsr *DNSRegistry) registerSvc(ctr *types.ContainerJSON) {
 
 	regErr := dnsr.Agent.ServiceRegister(&svc)
 	if regErr != nil {
-		panic(regErr)
+		log.Error(regErr)
 	}
 
 }

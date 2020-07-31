@@ -39,7 +39,30 @@ type NodeMeta struct {
 }
 
 func Hello() {
-	fmt.Println("一哭二闹三上悠亚")
+	fmt.Println("                                                 ")
+	fmt.Println("                  +o                             ")
+	fmt.Println("                ::No .-                          ")
+	fmt.Println("               -yoNy om-                         ")
+	fmt.Println("               smhNm yNNs                        ")
+	fmt.Println("             `+-hNNN:yNh:-                       ")
+	fmt.Println("             `mm+omNh+m/N/                       ")
+	fmt.Println("             sdNNmshNdmmNo        :+:sy:         ")
+	fmt.Println("             :ymNNNmdNNNNy    .+-mdhNo`.         ")
+	fmt.Println("             `+:odNNNNNNNN` syNh+NNd-/d+         ")
+	fmt.Println("             .NNmhhdmNNNNN+`mmNhyNh/dNN.         ")
+	fmt.Println("             `yNNNNNmmNNNdd-yNNddNyhso-          ")
+	fmt.Println("               yNNNNNNNNNNy-hNNmNNmNy.           ")
+	fmt.Println("              .ymNNNNNNNNNNy/NNNNNm:             ")
+	fmt.Println("              /hhhdNNNNNNNNNhhNNNh.              ")
+	fmt.Println("              `hmmmNNNNNNNNNNNNNNdy+.            ")
+	fmt.Println("              +yhdmNNNNNNNNNNNNNNNNNN-           ")
+	fmt.Println("               +osydNNNNNNNNNNNNNNmddmh/         ")
+	fmt.Println("              ./sdNNNNNNNNNNNmh+-      .`        ")
+	fmt.Println("           `:shmNNNNNNNNNmys:                    ")
+	fmt.Println("         `/ydmNNNNNmyNo:o++:..`                  ")
+	fmt.Println("        /NNhdmdmNmh``/osyy+o/-.                  ")
+	fmt.Println("        .yshoyhdh+   .:``/``                     ")
+	fmt.Println("         `-/ys.-                                 ")
 }
 
 func createBridge(ctx context.Context, brName string, sn ip.IP4Net) {

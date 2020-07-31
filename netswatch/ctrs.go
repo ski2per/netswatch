@@ -54,7 +54,7 @@ func listJoinedCtrs(ctx context.Context, name string) map[string]types.Container
 
 	nr, err := cli.NetworkInspect(ctx, name)
 	if err != nil {
-		panic(err)
+		log.Error(err)
 	}
 
 	containers := make(map[string]types.ContainerJSON)
@@ -67,25 +67,6 @@ func listJoinedCtrs(ctx context.Context, name string) map[string]types.Container
 		containers[cID] = ctr
 	}
 	return containers
-}
-
-func listContainers(ctx context.Context) {
-	// listCtrInNetwork(ctx)
-
-	// cli, err := client.NewEnvClient()
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// containers, err := cli.ContainerList(ctx, types.ContainerListOptions{})
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// for _, container := range containers {
-	// 	fmt.Printf("%s %s\n", container.ID[:10], container.Image)
-	// }
-
 }
 
 func extractCtrIDs(m map[string]types.ContainerJSON) []string {
@@ -104,10 +85,8 @@ func Debug(ctx context.Context, dns DNSRegistry, loop int) {
 	for {
 
 		svcIDs := dns.listSvcIDs()
+		fmt.Println("svcIDs length: ", len(svcIDs))
 		fmt.Println(svcIDs)
-		// for _, id := range svcIDs {
-		// 	fmt.Println(id)
-		// }
 
 		containers := listJoinedCtrs(ctx, dns.NetworkName)
 		ctrIDs := extractCtrIDs(containers)
@@ -146,16 +125,11 @@ func WatchCtrs(ctx context.Context, netName string, dns DNSRegistry, loop int) {
 	fmt.Println("ʕ•o•ʔ Containers' watch begins")
 
 	filter := filters.NewArgs()
-	// Watch Docker events with type: "container", "network"
-	// filter.Add("type", "container")
+	// Watch Docker events with type: "network"
 	filter.Add("type", "network")
 	// Only watch events below
-	// filter.Add("event", "start")
-	// filter.Add("event", "stop")
-	// filter.Add("event", "restart")
 	filter.Add("event", "connect")
 	filter.Add("event", "disconnect")
-	// filter.Add("event", "destroy")
 
 	cli, err := client.NewEnvClient()
 	if err != nil {
