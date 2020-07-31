@@ -137,8 +137,6 @@ func Debug(ctx context.Context, dns DNSRegistry, loop int) {
 			dns.deregisterSvc(id)
 		}
 
-		// for _, ctr := range containers {
-		// }
 		time.Sleep(5 * time.Second)
 	}
 }

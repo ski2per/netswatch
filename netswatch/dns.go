@@ -24,14 +24,8 @@ import (
 	consul "github.com/hashicorp/consul/api"
 )
 
-type nwService struct {
-	ID      string
-	Address string
-	Tags    []string
-	Name    string
-}
-
 type DNSRegistry struct {
+	Agent          consul.Agent
 	Endpoint       string
 	Token          string
 	NetworkName    string
@@ -55,16 +49,20 @@ func formatServiceString(s string) string {
 	return replaced.ReplaceAllString(s, "-")
 }
 
-func (dnsr *DNSRegistry) listSvcIDs() []string {
+func (dnsr *DNSRegistry) CreateAgent() {
 	cli, err := consul.NewClient(&consul.Config{
 		Address: dnsr.Endpoint,
+		Token:   dnsr.Token,
 	})
 	if err != nil {
-		log.Error(err)
+		panic(err)
 	}
 	agent := cli.Agent()
+	dnsr.Agent = *agent
+}
 
-	svcs, err := agent.Services()
+func (dnsr *DNSRegistry) listSvcIDs() []string {
+	svcs, err := dnsr.Agent.Services()
 	if err != nil {
 		log.Error(err)
 	}
@@ -81,15 +79,6 @@ func (dnsr *DNSRegistry) listSvcIDs() []string {
 }
 
 func (dnsr *DNSRegistry) registerSvc(ctr *types.ContainerJSON) {
-	cli, err := consul.NewClient(&consul.Config{
-		Address: dnsr.Endpoint,
-		Token:   dnsr.Token,
-	})
-	if err != nil {
-		panic(err)
-	}
-	agent := cli.Agent()
-
 	var svc consul.AgentServiceRegistration
 	svc.ID = ctr.ID
 	svc.Name = fmt.Sprintf("%s-%s-%s", formatServiceString(dnsr.OrgName), dnsr.NodeName, getCtrName(ctr))
@@ -111,7 +100,7 @@ func (dnsr *DNSRegistry) registerSvc(ctr *types.ContainerJSON) {
 
 	// fmt.Printf("%+v\n", svc)
 
-	regErr := agent.ServiceRegister(&svc)
+	regErr := dnsr.Agent.ServiceRegister(&svc)
 	if regErr != nil {
 		panic(regErr)
 	}
@@ -119,16 +108,7 @@ func (dnsr *DNSRegistry) registerSvc(ctr *types.ContainerJSON) {
 }
 
 func (dnsr *DNSRegistry) deregisterSvc(id string) {
-	cli, err := consul.NewClient(&consul.Config{
-		Address: dnsr.Endpoint,
-		Token:   dnsr.Token,
-	})
-	if err != nil {
-		panic(err)
-	}
-	agent := cli.Agent()
-
-	deregErr := agent.ServiceDeregister(id)
+	deregErr := dnsr.Agent.ServiceDeregister(id)
 	if deregErr != nil {
 		log.Errorf("!!! Error deregistering: <%s>", id)
 	}

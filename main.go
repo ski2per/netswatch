@@ -385,6 +385,7 @@ func main() {
 		NetdataEnabled: opts.netdataEnabled,
 		NetdataPort:    opts.netdataPort,
 	}
+	dns.CreateAgent()
 	wg.Add(1)
 	go func() {
 		// netswatch.WatchCtrs(ctx, opts.networkName, dns, opts.loop)
