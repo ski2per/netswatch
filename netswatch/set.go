@@ -2,38 +2,38 @@ package netswatch
 
 type void struct{} //Empty stuct, 0 byte
 
-type IDSet struct {
+type Set struct {
 	box map[string]void
 }
 
-func NewSet() *IDSet {
-	s := &IDSet{}
+func NewSet() *Set {
+	s := &Set{}
 	s.box = make(map[string]void)
 	return s
 }
 
-func (s *IDSet) Has(v string) bool {
+func (s *Set) Has(v string) bool {
 	_, ok := s.box[v]
 	return ok
 }
 
-func (s *IDSet) Add(v string) {
+func (s *Set) Add(v string) {
 	s.box[v] = void{}
 }
 
-func (s *IDSet) Remove(v string) {
+func (s *Set) Remove(v string) {
 	delete(s.box, v)
 }
 
-func (s *IDSet) Size() int {
+func (s *Set) Size() int {
 	return len(s.box)
 }
 
-func (s *IDSet) Clear() {
+func (s *Set) Clear() {
 	s.box = make(map[string]void)
 }
 
-func (s *IDSet) Union(s2 *IDSet) *IDSet {
+func (s *Set) Union(s2 *Set) *Set {
 	ns := NewSet()
 	for v := range s.box {
 		ns.Add(v)
@@ -44,7 +44,7 @@ func (s *IDSet) Union(s2 *IDSet) *IDSet {
 	return ns
 }
 
-func (s *IDSet) Intersect(s2 *IDSet) *IDSet {
+func (s *Set) Intersect(s2 *Set) *Set {
 	ns := NewSet()
 	for v := range s.box {
 		if s2.Has(v) {
@@ -54,7 +54,7 @@ func (s *IDSet) Intersect(s2 *IDSet) *IDSet {
 	return ns
 }
 
-func (s *IDSet) Difference(s2 *IDSet) *IDSet {
+func (s *Set) Difference(s2 *Set) *Set {
 	ns := NewSet()
 	for v := range s.box {
 		if s2.Has(v) {
