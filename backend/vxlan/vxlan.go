@@ -97,7 +97,7 @@ func newSubnetAttrs(publicIP net.IP, mac net.HardwareAddr, meta *netswatch.NodeM
 		return nil, err
 	}
 
-	extMeta, err := json.Marshal(netswatch.ExtendNodeMeta(meta))
+	extMeta, err := json.Marshal(meta)
 	if err != nil {
 		return nil, err
 	}

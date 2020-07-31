@@ -48,7 +48,7 @@ import (
 	"github.com/coreos/flannel/backend"
 	_ "github.com/coreos/flannel/backend/vxlan"
 
-	// Hidden by Ted
+	// Hidden by Ted for Netswatch
 	// _ "github.com/coreos/flannel/backend/alivpc"
 	// _ "github.com/coreos/flannel/backend/alloc"
 	// _ "github.com/coreos/flannel/backend/awsvpc"
@@ -316,12 +316,19 @@ func main() {
 		os.Exit(1)
 	}
 
+	// ====================================
+	//              Netswatch
+	// ------------------------------------
+	// "NodeName" will determined by the existence of hostname
+	opts.nodeName = getNodeName(opts.nodeName)
 	// Add info from opts
 	meta := &netswatch.NodeMeta{
 		OrgName:  opts.orgName,
 		NodeType: opts.nodeType,
-		NodeName: opts.nodeName, // "nodeType" will determined by the existence of hostname
+		NodeName: opts.nodeName,
 	}
+	// ------------------------------------
+	// ====================================
 
 	bn, err := be.RegisterNetwork(ctx, wg, config, meta)
 	if err != nil {
@@ -369,13 +376,19 @@ func main() {
 	}()
 
 	dns := netswatch.DNSRegistry{
-		Endpoint: opts.dnsEndpoint,
-		Token:    opts.dnsToken,
+		Endpoint:       opts.dnsEndpoint,
+		Token:          opts.dnsToken,
+		NetworkName:    opts.networkName,
+		OrgName:        opts.orgName,
+		NodeName:       opts.nodeName,
+		HostIP:         extIface.IfaceAddr,
+		NetdataEnabled: opts.netdataEnabled,
+		NetdataPort:    opts.netdataPort,
 	}
 	wg.Add(1)
 	go func() {
 		// netswatch.WatchCtrs(ctx, opts.networkName, dns, opts.loop)
-		netswatch.Debug(ctx, opts.networkName, dns, opts.loop)
+		netswatch.Debug(ctx, dns, opts.loop)
 		wg.Done()
 	}()
 	// ------------------------------------
@@ -681,4 +694,19 @@ func ReadCIDRFromSubnetFile(path string, CIDRKey string) ip.IP4Net {
 		}
 	}
 	return prevCIDR
+}
+
+func getNodeName(s string) string {
+	// If meta.NodeName is not set, then use hostname for node name.
+	if len(s) == 0 {
+		name, err := os.Hostname()
+		if err != nil {
+			fmt.Println("get hostname error")
+			fmt.Printf("%v", err)
+			name = "default-node"
+		}
+		return name
+	}
+
+	return s
 }

@@ -15,6 +15,11 @@
 package netswatch
 
 import (
+	"fmt"
+	"net"
+	"regexp"
+
+	"github.com/docker/docker/api/types"
 	log "github.com/golang/glog"
 	consul "github.com/hashicorp/consul/api"
 )
@@ -27,27 +32,55 @@ type nwService struct {
 }
 
 type DNSRegistry struct {
-	Endpoint string
-	Token    string
+	Endpoint       string
+	Token          string
+	NetworkName    string
+	OrgName        string
+	NodeName       string
+	NetdataEnabled bool
+	NetdataPort    int
+	HostIP         net.IP
 }
 
-func (dnsr *DNSRegistry) listSvcs() map[string]*consul.AgentService {
+func formatServiceString(s string) string {
+	/*
+		Input string and return:
+		abc         -> abc
+		abc.com     -> abc-com
+		abc..com    -> abc-com
+		abc_com     -> abc-com
+		c.com_cn  	-> abc-com-cn
+	*/
+	replaced := regexp.MustCompile(`\.+|_+`)
+	return replaced.ReplaceAllString(s, "-")
+}
+
+func (dnsr *DNSRegistry) listSvcIDs() []string {
 	cli, err := consul.NewClient(&consul.Config{
 		Address: dnsr.Endpoint,
 	})
 	if err != nil {
 		log.Error(err)
 	}
-
 	agent := cli.Agent()
+
 	svcs, err := agent.Services()
 	if err != nil {
 		log.Error(err)
 	}
-	return svcs
+
+	svcIDs := make([]string, len(svcs))
+
+	i := 0
+	for id := range svcs {
+		svcIDs[i] = id
+		i++
+	}
+
+	return svcIDs
 }
 
-func (dnsr *DNSRegistry) registerSvc() {
+func (dnsr *DNSRegistry) registerSvc(ctr *types.ContainerJSON) {
 	cli, err := consul.NewClient(&consul.Config{
 		Address: dnsr.Endpoint,
 		Token:   dnsr.Token,
@@ -58,13 +91,46 @@ func (dnsr *DNSRegistry) registerSvc() {
 	agent := cli.Agent()
 
 	var svc consul.AgentServiceRegistration
+	svc.ID = ctr.ID
+	svc.Name = fmt.Sprintf("%s-%s-%s", formatServiceString(dnsr.OrgName), dnsr.NodeName, getCtrName(ctr))
+	svc.Address = ctr.NetworkSettings.Networks[dnsr.NetworkName].IPAddress
 
-	svc.ID = "Demo2"
-	svc.Name = "heheda"
+	tags := []string{dnsr.OrgName, dnsr.NodeName}
+
+	// Extend service with Netdata data when NW_NETDATA_ENABLED is true
+	if dnsr.NetdataEnabled {
+		tags = append(tags, "netdata")
+		svc.Tags = tags
+		svc.Port = dnsr.NetdataPort
+		svcMeta := map[string]string{
+			"host":    dnsr.NodeName,
+			"host_ip": dnsr.HostIP.String(),
+		}
+		svc.Meta = svcMeta
+	}
+
+	// fmt.Printf("%+v\n", svc)
 
 	regErr := agent.ServiceRegister(&svc)
 	if regErr != nil {
 		panic(regErr)
+	}
+
+}
+
+func (dnsr *DNSRegistry) deregisterSvc(id string) {
+	cli, err := consul.NewClient(&consul.Config{
+		Address: dnsr.Endpoint,
+		Token:   dnsr.Token,
+	})
+	if err != nil {
+		panic(err)
+	}
+	agent := cli.Agent()
+
+	deregErr := agent.ServiceDeregister(id)
+	if deregErr != nil {
+		log.Errorf("!!! Error deregistering: <%s>", id)
 	}
 
 }

@@ -23,6 +23,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
+	log "github.com/golang/glog"
 )
 
 func getCtrName(ctr *types.ContainerJSON) string {
@@ -87,37 +88,56 @@ func listContainers(ctx context.Context) {
 
 }
 
-func getKeys(m map[string]interface{}) []string {
-	keys := make([]string, len(m))
+func extractCtrIDs(m map[string]types.ContainerJSON) []string {
+	IDs := make([]string, len(m))
 
 	i := 0
 	for k := range m {
-		keys[i] = k
+		IDs[i] = k
 		i++
 	}
-	return keys
+	return IDs
 
 }
 
-func Debug(ctx context.Context, netName string, dns DNSRegistry, loop int) {
+func Debug(ctx context.Context, dns DNSRegistry, loop int) {
 	for {
 
-		containers := listJoinedCtrs(ctx, netName)
-		services := dns.listSvcs()
+		svcIDs := dns.listSvcIDs()
+		fmt.Println(svcIDs)
+		// for _, id := range svcIDs {
+		// 	fmt.Println(id)
+		// }
 
-		fmt.Println(getKeys(containers))
-		// fmt.Println(services)
-		// fmt.Println(len(services))
-		// for _, ctr := range containers {
-		// for _, ctr := range containers {
-		// 	ctrID := ctr.ID
-		// 	ctrIP := ctr.NetworkSettings.Networks[netName].IPAddress
-		// 	ctrName := getCtrName(&ctr)
-
+		containers := listJoinedCtrs(ctx, dns.NetworkName)
+		ctrIDs := extractCtrIDs(containers)
+		// for _, ctrID := range ctrIDs {
 		// 	fmt.Println(ctrID)
-		// 	fmt.Println(ctrIP)
-		// 	fmt.Println(ctrName)
-		// 	fmt.Println("-----------------")
+		// }
+
+		remoteSet := NewSet()
+		remoteSet.AddList(&svcIDs)
+		fmt.Println(remoteSet.Size())
+
+		localSet := NewSet()
+		localSet.AddList(&ctrIDs)
+		fmt.Println(localSet.Size())
+
+		svc2Register := localSet.Difference(remoteSet)
+		fmt.Println("No. of services to register: ", svc2Register.Size())
+		for id := range svc2Register.content {
+			ctrJSON := containers[id]
+			log.Infof("Registering service: <%s>", ctrJSON.Name)
+			dns.registerSvc(&ctrJSON)
+		}
+		svc2Deregister := remoteSet.Difference(localSet)
+		fmt.Println("No. of services to deregister: ", svc2Deregister.Size())
+		for id := range svc2Deregister.content {
+			log.Infof("Deregistering service: <%s>", id)
+			dns.deregisterSvc(id)
+		}
+
+		// for _, ctr := range containers {
 		// }
 		time.Sleep(5 * time.Second)
 	}

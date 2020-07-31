@@ -18,7 +18,6 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"os"
 	"time"
 
 	log "github.com/golang/glog"
@@ -137,19 +136,4 @@ func WatchNets(ctx context.Context, sm subnet.Manager, sn ip.IP4Net, netName str
 		}
 
 	}
-}
-
-func ExtendNodeMeta(meta *NodeMeta) *NodeMeta {
-	// If meta.NodeName is not set, then use hostname for node name.
-	if len(meta.NodeName) == 0 {
-		name, err := os.Hostname()
-		if err != nil {
-			fmt.Println("get hostname error")
-			fmt.Printf("%v", err)
-			name = "default-node"
-		}
-		meta.NodeName = name
-	}
-
-	return meta
 }
