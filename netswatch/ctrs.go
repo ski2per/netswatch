@@ -83,7 +83,6 @@ func extractCtrIDs(m map[string]types.ContainerJSON) []string {
 
 func Debug(ctx context.Context, dns DNSRegistry, loop int) {
 	for {
-
 		svcIDs := dns.listSvcIDs()
 		fmt.Println("svcIDs length: ", len(svcIDs))
 		fmt.Println(svcIDs)

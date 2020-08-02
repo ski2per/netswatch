@@ -49,7 +49,6 @@ type Lease struct {
 }
 
 func (l *Lease) Key() string {
-	fmt.Println("================heheda")
 	k := MakeSubnetKey(l.Subnet)
 	fmt.Println(k)
 	return k
