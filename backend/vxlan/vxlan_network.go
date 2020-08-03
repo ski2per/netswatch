@@ -17,6 +17,7 @@ package vxlan
 
 import (
 	"encoding/json"
+	"fmt"
 	"net"
 	"sync"
 
@@ -71,6 +72,7 @@ func (nw *network) Run(ctx context.Context) {
 	for {
 		select {
 		case evtBatch := <-events:
+			fmt.Println("@@@@@@@@@@@@@@@@@@ [vxlan_network.go: Run()]Got event:", evtBatch)
 			nw.handleSubnetEvents(evtBatch)
 
 		case <-ctx.Done():
