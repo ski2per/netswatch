@@ -49,7 +49,7 @@ func formatServiceString(s string) string {
 	return replaced.ReplaceAllString(s, "-")
 }
 
-func (dnsr *DNSRegistry) CreateAgent() {
+func (dnsr *DNSRegistry) InitAgent() {
 	cli, err := consul.NewClient(&consul.Config{
 		Address: dnsr.Endpoint,
 		Token:   dnsr.Token,
