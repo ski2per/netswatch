@@ -91,6 +91,7 @@ type vxlanLeaseAttrs struct {
 func (nw *network) handleSubnetEvents(ctx context.Context, batch []subnet.Event) {
 	// Get router and their IP4Net
 	routers := nw.subnetMgr.GetRouters(ctx)
+	fmt.Printf("%+v\n", routers)
 
 	// Unmarshal Lease Meta
 	meta := struct {
@@ -167,13 +168,23 @@ func (nw *network) handleSubnetEvents(ctx context.Context, batch []subnet.Event)
 			fmt.Println(meta.OrgName)
 			fmt.Println("---------DEBUG--------------")
 
-			if value, exists := routers[meta.OrgName]; exists {
-				vxlanRoute.Gw = value.IP.ToIP()
+			if currentNodeType == "node" {
+				// Use current org's router as gateway
+				if value, exists := routers[currentOrgName]; exists {
+					vxlanRoute.Gw = value.IP.ToIP()
+				} else {
+					log.Errorf("!!! Find no router in org <%s>", meta.OrgName)
+					vxlanRoute.Gw = sn.IP.ToIP()
+				}
 			} else {
-				log.Errorf("!!! Find no router in org <%s>", meta.OrgName)
-				vxlanRoute.Gw = sn.IP.ToIP()
+				if value, exists := routers[meta.OrgName]; exists {
+					vxlanRoute.Gw = value.IP.ToIP()
+				} else {
+					log.Errorf("!!! Find no router in org <%s>", meta.OrgName)
+					vxlanRoute.Gw = sn.IP.ToIP()
+				}
 			}
-			vxlanRoute.Gw = routers[meta.OrgName].IP.ToIP()
+
 		}
 
 		// This route is used when traffic should be vxlan encapsulated
