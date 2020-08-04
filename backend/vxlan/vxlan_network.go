@@ -72,7 +72,6 @@ func (nw *network) Run(ctx context.Context) {
 	for {
 		select {
 		case evtBatch := <-events:
-			fmt.Println("@@@@@@@@@@@@@@@@@@ [vxlan_network.go: Run()]Got event:", evtBatch)
 			nw.handleSubnetEvents(evtBatch)
 
 		case <-ctx.Done():
@@ -90,6 +89,19 @@ type vxlanLeaseAttrs struct {
 }
 
 func (nw *network) handleSubnetEvents(batch []subnet.Event) {
+	// Unmarshal Lease Meta
+	meta := struct {
+		OrgName  string
+		NodeType string
+	}{}
+
+	if err := json.Unmarshal(nw.SubnetLease.Attrs.Meta, &meta); err != nil {
+		log.Error("error decoding current subnet lease Meta: ", err)
+	}
+
+	fmt.Println("Current org: ", meta.OrgName)
+	fmt.Println("current node type: ", meta.NodeType)
+
 	for _, event := range batch {
 		sn := event.Lease.Subnet
 		attrs := event.Lease.Attrs
@@ -103,6 +115,21 @@ func (nw *network) handleSubnetEvents(batch []subnet.Event) {
 			log.Error("error decoding subnet lease JSON: ", err)
 			continue
 		}
+
+		// ====================================
+		//              Netswatch
+		// Add routing adjustment algorithm
+		// (From Netswatch.py)
+		// ------------------------------------
+
+		if err := json.Unmarshal(event.Lease.Attrs.Meta, &meta); err != nil {
+			log.Error("error decoding subnet lease Meta: ", err)
+		}
+
+		fmt.Println(sn, meta.OrgName, meta.NodeType)
+
+		// ------------------------------------
+		// ====================================
 
 		// This route is used when traffic should be vxlan encapsulated
 		vxlanRoute := netlink.Route{

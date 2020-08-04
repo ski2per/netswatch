@@ -389,3 +389,5 @@ func (m *LocalManager) GetSubnets(ctx context.Context) ([]Lease, error) {
 	leases, _, err := m.registry.getSubnets(ctx)
 	return leases, err
 }
+
+// func (m *LocalManager) GetLese(ctx context.Context, sn ip.IP4Net)

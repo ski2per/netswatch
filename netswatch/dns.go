@@ -63,7 +63,7 @@ func (dnsr *DNSRegistry) InitAgent() {
 
 func (dnsr *DNSRegistry) listSvcIDs() []string {
 	// Get service IDs from Consul
-	filter := fmt.Sprintf("Tags contains %s and Tags contains %s", dnsr.OrgName, dnsr.NodeName)
+	filter := fmt.Sprintf("Tags contains \"%s\" and Tags contains \"%s\"", dnsr.OrgName, dnsr.NodeName)
 	fmt.Println(filter)
 	svcs, err := dnsr.Agent.ServicesWithFilter(filter)
 	if err != nil {
