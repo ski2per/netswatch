@@ -15,6 +15,7 @@
 package etcdv2
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
@@ -390,4 +391,28 @@ func (m *LocalManager) GetSubnets(ctx context.Context) ([]Lease, error) {
 	return leases, err
 }
 
-// func (m *LocalManager) GetLese(ctx context.Context, sn ip.IP4Net)
+// func (m *LocalManager) GetRouters(ctx context.Context) {
+func (m *LocalManager) GetRouters(ctx context.Context) map[string]ip.IP4Net {
+	leases, _, err := m.registry.getSubnets(ctx)
+	if err != nil {
+		log.Error("Error while getting routers: ", err)
+	}
+
+	meta := struct {
+		OrgName  string
+		NodeType string
+	}{}
+
+	router := make(map[string]ip.IP4Net)
+
+	for _, lease := range leases {
+		if err := json.Unmarshal(lease.Attrs.Meta, &meta); err != nil {
+			log.Error("Error while unmarshal node type: ", err)
+		}
+
+		if meta.NodeType == "router" {
+			router[meta.OrgName] = lease.Subnet
+		}
+	}
+	return router
+}

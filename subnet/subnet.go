@@ -132,4 +132,5 @@ type Manager interface {
 	Name() string
 	// Add method for Netswatch
 	GetSubnets(ctx context.Context) ([]Lease, error)
+	GetRouters(ctx context.Context) map[string]ip.IP4Net
 }

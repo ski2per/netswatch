@@ -72,7 +72,7 @@ func (nw *network) Run(ctx context.Context) {
 	for {
 		select {
 		case evtBatch := <-events:
-			nw.handleSubnetEvents(evtBatch)
+			nw.handleSubnetEvents(ctx, evtBatch)
 
 		case <-ctx.Done():
 			return
@@ -88,19 +88,22 @@ type vxlanLeaseAttrs struct {
 	VtepMAC hardwareAddr
 }
 
-func (nw *network) handleSubnetEvents(batch []subnet.Event) {
+func (nw *network) handleSubnetEvents(ctx context.Context, batch []subnet.Event) {
+	// Get router and their IP4Net
+	routers := nw.subnetMgr.GetRouters(ctx)
+
 	// Unmarshal Lease Meta
 	meta := struct {
 		OrgName  string
 		NodeType string
 	}{}
 
+	//  Get current node's meta
 	if err := json.Unmarshal(nw.SubnetLease.Attrs.Meta, &meta); err != nil {
 		log.Error("error decoding current subnet lease Meta: ", err)
 	}
-
-	fmt.Println("Current org: ", meta.OrgName)
-	fmt.Println("current node type: ", meta.NodeType)
+	currentOrgName := meta.OrgName
+	currentNodeType := meta.NodeType
 
 	for _, event := range batch {
 		sn := event.Lease.Subnet
@@ -131,13 +134,49 @@ func (nw *network) handleSubnetEvents(batch []subnet.Event) {
 		// ------------------------------------
 		// ====================================
 
-		// This route is used when traffic should be vxlan encapsulated
 		vxlanRoute := netlink.Route{
 			LinkIndex: nw.dev.link.Attrs().Index,
 			Scope:     netlink.SCOPE_UNIVERSE,
 			Dst:       sn.ToIPNet(),
-			Gw:        sn.IP.ToIP(),
 		}
+
+		if len(routers) <= 0 || currentNodeType == "internal" || meta.NodeType == "interal" || meta.OrgName == currentOrgName {
+			fmt.Println("++++++++++DEBUG: default route +++++++++++++")
+			fmt.Println(currentNodeType)
+			fmt.Println(meta.NodeType)
+			fmt.Println(currentOrgName)
+			fmt.Println(meta.OrgName)
+			fmt.Println("---------DEBUG--------------")
+			// No need to adjust route, use default Flannel route, i.e:
+			// n0 via n0 dev nw.100 onlink
+			// n1 via n1 dev nw.100 onlink
+			// r0 via r0 dev nw.100 onlink
+			// r1 via r1 dev nw.100 onlink
+			vxlanRoute.Gw = sn.IP.ToIP()
+
+		} else {
+			// No need to adjust route, use default Flannel route, i.e:
+			// n0 via r0 dev nw.100 onlink
+			// n1 via r1 dev nw.100 onlink
+			// r0 via r0 dev nw.100 onlink
+			// r1 via r1 dev nw.100 onlink
+			fmt.Println("++++++++++DEBUG: adjust route +++++++++++++")
+			fmt.Println(currentNodeType)
+			fmt.Println(meta.NodeType)
+			fmt.Println(currentOrgName)
+			fmt.Println(meta.OrgName)
+			fmt.Println("---------DEBUG--------------")
+
+			if value, exists := routers[meta.OrgName]; exists {
+				vxlanRoute.Gw = value.IP.ToIP()
+			} else {
+				log.Errorf("!!! Find no router in org <%s>", meta.OrgName)
+				vxlanRoute.Gw = sn.IP.ToIP()
+			}
+			vxlanRoute.Gw = routers[meta.OrgName].IP.ToIP()
+		}
+
+		// This route is used when traffic should be vxlan encapsulated
 		vxlanRoute.SetFlag(syscall.RTNH_F_ONLINK)
 
 		// directRouting is where the remote host is on the same subnet so vxlan isn't required.
