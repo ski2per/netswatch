@@ -38,7 +38,7 @@ type NodeMeta struct {
 	HostIP   net.IP
 }
 
-func Hello() {
+func Logo() {
 	fmt.Println("                                                 ")
 	fmt.Println("                  +o                             ")
 	fmt.Println("                ::No .-                          ")
@@ -124,10 +124,10 @@ func WatchNets(ctx context.Context, sm subnet.Manager, sn ip.IP4Net, netName str
 	for {
 		select {
 		case <-ctx.Done():
-			fmt.Println("Networks' watch is ended")
+			log.Info("ʕ•ಲ•ʔ Networks' watch is ended")
 			return
 		default:
-			fmt.Println("ʕ•o•ʔ Networks' watch begins")
+			log.Info("ʕ•ಲ•ʔ Networks' watch begins")
 			createBridge(ctx, netName, sn)
 
 			// leases, err := sm.GetSubnets(ctx)

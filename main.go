@@ -111,6 +111,7 @@ type CmdLineOpts struct {
 	netdataEnabled         bool
 	netdataPort            int
 	loop                   int
+	logLevel               string
 }
 
 var (
@@ -155,14 +156,14 @@ func init() {
 	flannelFlags.BoolVar(&opts.netdataEnabled, "netdata-enabled", false, "Extend Netdata service when registering")
 	flannelFlags.IntVar(&opts.netdataPort, "netdata-port", 19999, "Netdata metrics port")
 	flannelFlags.IntVar(&opts.loop, "loop", 60, "Netswatch loop interval")
-	// flannelFlags.StringVar(&opts.logLevel, "log-level", "info", "Logging level")
+	flannelFlags.StringVar(&opts.logLevel, "log-level", "debug", "Logging level")
 
 	// glog will log to tmp files by default. override so all entries
 	// can flow into journald (if running under systemd)
 	flag.Set("logtostderr", "true")
 
 	// Only copy the non file logging options from glog
-	copyFlag("v")
+	// copyFlag("v")
 	// copyFlag("vmodule")
 	// copyFlag("log_backtrace_at")
 
@@ -172,17 +173,25 @@ func init() {
 	// now parse command line args
 	flannelFlags.Parse(os.Args[1:])
 
-	// Init Logrus
+	// Read Flags from environment variable which prefixed with "NW"
+	flagutil.SetFlagsFromEnv(flannelFlags, "NW")
+
+	// Init Logrus, default to INFO
 	log.SetFormatter(&log.TextFormatter{
 		FullTimestamp:   true,
 		TimestampFormat: "2006-01-02 15:04:05.00000",
 	})
+	logLvl, err := log.ParseLevel(opts.logLevel)
+	if err != nil {
+		logLvl = log.InfoLevel
+	}
+	log.SetLevel(logLvl)
 
 }
 
-func copyFlag(name string) {
-	flannelFlags.Var(flag.Lookup(name).Value, flag.Lookup(name).Name, flag.Lookup(name).Usage)
-}
+// func copyFlag(name string) {
+// 	flannelFlags.Var(flag.Lookup(name).Value, flag.Lookup(name).Name, flag.Lookup(name).Usage)
+// }
 
 func usage() {
 	fmt.Fprintf(os.Stderr, "Usage: %s [OPTION]...\n", os.Args[0])
@@ -214,15 +223,12 @@ func newSubnetManager() (subnet.Manager, error) {
 
 func main() {
 	// Add by Ted, just for fun :P
-	netswatch.Hello()
+	netswatch.Logo()
 
 	if opts.version {
 		fmt.Fprintln(os.Stderr, version.Version)
 		os.Exit(0)
 	}
-
-	// Read Flags from environment variable which prefixed with "NW"
-	flagutil.SetFlagsFromEnv(flannelFlags, "NW")
 
 	// Validate flags
 	if opts.subnetLeaseRenewMargin >= 24*60 || opts.subnetLeaseRenewMargin <= 0 {
@@ -396,8 +402,8 @@ func main() {
 
 	wg.Add(1)
 	go func() {
-		// netswatch.WatchCtrs(ctx, opts.networkName, dns, opts.loop)
-		netswatch.Debug(ctx, dns, opts.loop)
+		netswatch.WatchCtrs(ctx, dns, opts.loop)
+		// netswatch.Debug(ctx, dns, opts.loop)
 		wg.Done()
 	}()
 	// ------------------------------------
@@ -458,7 +464,6 @@ func shutdownHandler(ctx context.Context, sigs chan os.Signal, cancel context.Ca
 	case <-sigs:
 		// Call cancel on the context to close everything down.
 		cancel()
-		fmt.Println("yoyo")
 		log.Info("shutdownHandler sent cancel signal...")
 	}
 
@@ -482,7 +487,7 @@ func getConfig(ctx context.Context, sm subnet.Manager) (*subnet.Config, error) {
 		case <-ctx.Done():
 			return nil, errCanceled
 		case <-time.After(1 * time.Second):
-			fmt.Println("timed out")
+			log.Info("Timed out while get subnet.Config")
 		}
 	}
 }
@@ -713,7 +718,7 @@ func getNodeName(s string) string {
 	if len(s) == 0 {
 		name, err := os.Hostname()
 		if err != nil {
-			fmt.Println("get hostname error")
+			log.Error("Get hostname error")
 			fmt.Printf("%v", err)
 			name = "default-node"
 		}

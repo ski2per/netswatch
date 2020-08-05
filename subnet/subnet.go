@@ -17,7 +17,6 @@ package subnet
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net"
 	"regexp"
 	"strconv"
@@ -49,10 +48,7 @@ type Lease struct {
 }
 
 func (l *Lease) Key() string {
-	k := MakeSubnetKey(l.Subnet)
-	fmt.Println(k)
-	return k
-	// return MakeSubnetKey(l.Subnet)
+	return MakeSubnetKey(l.Subnet)
 }
 
 type (
@@ -99,7 +95,6 @@ func (et *EventType) UnmarshalJSON(data []byte) error {
 	case "\"removed\"":
 		*et = EventRemoved
 	default:
-		fmt.Println(string(data))
 		return errors.New("bad event type")
 	}
 

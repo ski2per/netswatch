@@ -17,7 +17,6 @@ package vxlan
 
 import (
 	"encoding/json"
-	"fmt"
 	"net"
 	"sync"
 
@@ -91,7 +90,6 @@ type vxlanLeaseAttrs struct {
 func (nw *network) handleSubnetEvents(ctx context.Context, batch []subnet.Event) {
 	// Get router and their IP4Net
 	routers := nw.subnetMgr.GetRouters(ctx)
-	fmt.Printf("%+v\n", routers)
 
 	// Unmarshal Lease Meta
 	meta := struct {
@@ -130,8 +128,6 @@ func (nw *network) handleSubnetEvents(ctx context.Context, batch []subnet.Event)
 			log.Error("error decoding subnet lease Meta: ", err)
 		}
 
-		fmt.Println(sn, meta.OrgName, meta.NodeType)
-
 		// ------------------------------------
 		// ====================================
 
@@ -142,12 +138,12 @@ func (nw *network) handleSubnetEvents(ctx context.Context, batch []subnet.Event)
 		}
 
 		if len(routers) <= 0 || currentNodeType == "internal" || meta.NodeType == "interal" || meta.OrgName == currentOrgName {
-			fmt.Println("++++++++++DEBUG: default route +++++++++++++")
-			fmt.Println(currentNodeType)
-			fmt.Println(meta.NodeType)
-			fmt.Println(currentOrgName)
-			fmt.Println(meta.OrgName)
-			fmt.Println("---------DEBUG--------------")
+			log.Debug("++++++++++++++++ default route ++++++++++++++++")
+			log.Debugf("Current node type: %s", currentNodeType)
+			log.Debugf("Meta node type: %s", meta.NodeType)
+			log.Debugf("Current org name: %s", currentOrgName)
+			log.Debugf("Meta org name: %s", meta.OrgName)
+			log.Debug("------------------------------ ----------------")
 			// No need to adjust route, use default Flannel route, i.e:
 			// n0 via n0 dev nw.100 onlink
 			// n1 via n1 dev nw.100 onlink
@@ -156,17 +152,17 @@ func (nw *network) handleSubnetEvents(ctx context.Context, batch []subnet.Event)
 			vxlanRoute.Gw = sn.IP.ToIP()
 
 		} else {
-			// No need to adjust route, use default Flannel route, i.e:
+			// Need to adjust route, use target org's router as gateway, i.e:
 			// n0 via r0 dev nw.100 onlink
 			// n1 via r1 dev nw.100 onlink
 			// r0 via r0 dev nw.100 onlink
 			// r1 via r1 dev nw.100 onlink
-			fmt.Println("++++++++++DEBUG: adjust route +++++++++++++")
-			fmt.Println(currentNodeType)
-			fmt.Println(meta.NodeType)
-			fmt.Println(currentOrgName)
-			fmt.Println(meta.OrgName)
-			fmt.Println("---------DEBUG--------------")
+			log.Debug("++++++++++++++++ adjust route ++++++++++++++++")
+			log.Debugf("Current node type: %s", currentNodeType)
+			log.Debugf("Meta node type: %s", meta.NodeType)
+			log.Debugf("Current org name: %s", currentOrgName)
+			log.Debugf("Meta org name: %s", meta.OrgName)
+			log.Debug("------------------------------ ----------------")
 
 			if currentNodeType == "node" {
 				// Use current org's router as gateway

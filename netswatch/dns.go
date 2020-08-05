@@ -20,8 +20,8 @@ import (
 	"regexp"
 
 	"github.com/docker/docker/api/types"
-	log "github.com/sirupsen/logrus"
 	consul "github.com/hashicorp/consul/api"
+	log "github.com/sirupsen/logrus"
 )
 
 type DNSRegistry struct {
@@ -64,7 +64,6 @@ func (dnsr *DNSRegistry) InitAgent() {
 func (dnsr *DNSRegistry) listSvcIDs() []string {
 	// Get service IDs from Consul
 	filter := fmt.Sprintf("Tags contains \"%s\" and Tags contains \"%s\"", dnsr.OrgName, dnsr.NodeName)
-	fmt.Println(filter)
 	svcs, err := dnsr.Agent.ServicesWithFilter(filter)
 	if err != nil {
 		log.Error(err)
@@ -99,8 +98,6 @@ func (dnsr *DNSRegistry) registerSvc(ctr *types.ContainerJSON) {
 		}
 		svc.Meta = svcMeta
 	}
-
-	// fmt.Printf("%+v\n", svc)
 
 	regErr := dnsr.Agent.ServiceRegister(&svc)
 	if regErr != nil {
