@@ -18,7 +18,7 @@ import (
 	"encoding/json"
 	"sync"
 
-	log "github.com/golang/glog"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 
 	"fmt"

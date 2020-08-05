@@ -23,7 +23,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/ec2metadata"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
-	log "github.com/golang/glog"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 	"net"
 	"sync"

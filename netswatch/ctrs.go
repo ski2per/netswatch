@@ -23,7 +23,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
-	log "github.com/golang/glog"
+	log "github.com/sirupsen/logrus"
 )
 
 func getCtrName(ctr *types.ContainerJSON) string {

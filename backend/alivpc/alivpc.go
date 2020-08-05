@@ -18,7 +18,7 @@ package alivpc
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/golang/glog"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 	"os"
 	"sync"

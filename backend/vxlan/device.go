@@ -22,7 +22,7 @@ import (
 	"net"
 	"syscall"
 
-	log "github.com/golang/glog"
+	log "github.com/sirupsen/logrus"
 	"github.com/vishvananda/netlink"
 
 	"github.com/coreos/flannel/pkg/ip"
@@ -69,7 +69,7 @@ func ensureLink(vxlan *netlink.Vxlan) (*netlink.Vxlan, error) {
 	err := netlink.LinkAdd(vxlan)
 	if err == syscall.EEXIST {
 		// it's ok if the device already exists as long as config is similar
-		log.V(1).Infof("VXLAN device already exists")
+		log.Infof("VXLAN device already exists")
 		existing, err := netlink.LinkByName(vxlan.Name)
 		if err != nil {
 			return nil, err
@@ -77,7 +77,7 @@ func ensureLink(vxlan *netlink.Vxlan) (*netlink.Vxlan, error) {
 
 		incompat := vxlanLinksIncompat(vxlan, existing)
 		if incompat == "" {
-			log.V(1).Infof("Returning existing device")
+			log.Infof("Returning existing device")
 			return existing.(*netlink.Vxlan), nil
 		}
 
@@ -131,7 +131,7 @@ type neighbor struct {
 }
 
 func (dev *vxlanDevice) AddFDB(n neighbor) error {
-	log.V(4).Infof("calling AddFDB: %v, %v", n.IP, n.MAC)
+	log.Infof("calling AddFDB: %v, %v", n.IP, n.MAC)
 	return netlink.NeighSet(&netlink.Neigh{
 		LinkIndex:    dev.link.Index,
 		State:        netlink.NUD_PERMANENT,
@@ -143,7 +143,7 @@ func (dev *vxlanDevice) AddFDB(n neighbor) error {
 }
 
 func (dev *vxlanDevice) DelFDB(n neighbor) error {
-	log.V(4).Infof("calling DelFDB: %v, %v", n.IP, n.MAC)
+	log.Infof("calling DelFDB: %v, %v", n.IP, n.MAC)
 	return netlink.NeighDel(&netlink.Neigh{
 		LinkIndex:    dev.link.Index,
 		Family:       syscall.AF_BRIDGE,
@@ -154,7 +154,7 @@ func (dev *vxlanDevice) DelFDB(n neighbor) error {
 }
 
 func (dev *vxlanDevice) AddARP(n neighbor) error {
-	log.V(4).Infof("calling AddARP: %v, %v", n.IP, n.MAC)
+	log.Infof("calling AddARP: %v, %v", n.IP, n.MAC)
 	return netlink.NeighSet(&netlink.Neigh{
 		LinkIndex:    dev.link.Index,
 		State:        netlink.NUD_PERMANENT,
@@ -165,7 +165,7 @@ func (dev *vxlanDevice) AddARP(n neighbor) error {
 }
 
 func (dev *vxlanDevice) DelARP(n neighbor) error {
-	log.V(4).Infof("calling DelARP: %v, %v", n.IP, n.MAC)
+	log.Infof("calling DelARP: %v, %v", n.IP, n.MAC)
 	return netlink.NeighDel(&netlink.Neigh{
 		LinkIndex:    dev.link.Index,
 		State:        netlink.NUD_PERMANENT,

@@ -20,7 +20,7 @@ import (
 	"regexp"
 
 	"github.com/docker/docker/api/types"
-	log "github.com/golang/glog"
+	log "github.com/sirupsen/logrus"
 	consul "github.com/hashicorp/consul/api"
 )
 

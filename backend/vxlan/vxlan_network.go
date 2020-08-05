@@ -21,7 +21,7 @@ import (
 	"net"
 	"sync"
 
-	log "github.com/golang/glog"
+	log "github.com/sirupsen/logrus"
 	"github.com/vishvananda/netlink"
 	"golang.org/x/net/context"
 
@@ -58,12 +58,12 @@ func newNetwork(subnetMgr subnet.Manager, extIface *backend.ExternalInterface, d
 func (nw *network) Run(ctx context.Context) {
 	wg := sync.WaitGroup{}
 
-	log.V(0).Info("watching for new subnet leases")
+	log.Info("watching for new subnet leases")
 	events := make(chan []subnet.Event)
 	wg.Add(1)
 	go func() {
 		subnet.WatchLeases(ctx, nw.subnetMgr, nw.SubnetLease, events)
-		log.V(1).Info("WatchLeases exited")
+		log.Info("WatchLeases exited")
 		wg.Done()
 	}()
 
@@ -207,14 +207,14 @@ func (nw *network) handleSubnetEvents(ctx context.Context, batch []subnet.Event)
 		switch event.Type {
 		case subnet.EventAdded:
 			if directRoutingOK {
-				log.V(2).Infof("Adding direct route to subnet: %s PublicIP: %s", sn, attrs.PublicIP)
+				log.Infof("Adding direct route to subnet: %s PublicIP: %s", sn, attrs.PublicIP)
 
 				if err := netlink.RouteReplace(&directRoute); err != nil {
 					log.Errorf("Error adding route to %v via %v: %v", sn, attrs.PublicIP, err)
 					continue
 				}
 			} else {
-				log.V(2).Infof("adding subnet: %s PublicIP: %s VtepMAC: %s", sn, attrs.PublicIP, net.HardwareAddr(vxlanAttrs.VtepMAC))
+				log.Infof("adding subnet: %s PublicIP: %s VtepMAC: %s", sn, attrs.PublicIP, net.HardwareAddr(vxlanAttrs.VtepMAC))
 				if err := nw.dev.AddARP(neighbor{IP: sn.IP, MAC: net.HardwareAddr(vxlanAttrs.VtepMAC)}); err != nil {
 					log.Error("AddARP failed: ", err)
 					continue
@@ -250,12 +250,12 @@ func (nw *network) handleSubnetEvents(ctx context.Context, batch []subnet.Event)
 			}
 		case subnet.EventRemoved:
 			if directRoutingOK {
-				log.V(2).Infof("Removing direct route to subnet: %s PublicIP: %s", sn, attrs.PublicIP)
+				log.Infof("Removing direct route to subnet: %s PublicIP: %s", sn, attrs.PublicIP)
 				if err := netlink.RouteDel(&directRoute); err != nil {
 					log.Errorf("Error deleting route to %v via %v: %v", sn, attrs.PublicIP, err)
 				}
 			} else {
-				log.V(2).Infof("removing subnet: %s PublicIP: %s VtepMAC: %s", sn, attrs.PublicIP, net.HardwareAddr(vxlanAttrs.VtepMAC))
+				log.Infof("removing subnet: %s PublicIP: %s VtepMAC: %s", sn, attrs.PublicIP, net.HardwareAddr(vxlanAttrs.VtepMAC))
 
 				// Try to remove all entries - don't bail out if one of them fails.
 				if err := nw.dev.DelARP(neighbor{IP: sn.IP, MAC: net.HardwareAddr(vxlanAttrs.VtepMAC)}); err != nil {

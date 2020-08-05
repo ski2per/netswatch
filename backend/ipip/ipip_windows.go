@@ -16,7 +16,7 @@
 package ipip
 
 import (
-	log "github.com/golang/glog"
+	log "github.com/sirupsen/logrus"
 )
 
 func init() {

@@ -14,7 +14,7 @@
 
 package ipsec
 
-import log "github.com/golang/glog"
+import log "github.com/sirupsen/logrus"
 
 func init() {
 	log.Infof("ipsec is not supported on this platform")

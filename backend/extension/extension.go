@@ -23,7 +23,7 @@ import (
 	"os/exec"
 	"sync"
 
-	log "github.com/golang/glog"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/coreos/flannel/backend"
 	"github.com/coreos/flannel/pkg/ip"

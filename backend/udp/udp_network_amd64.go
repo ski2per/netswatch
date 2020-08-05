@@ -24,7 +24,7 @@ import (
 	"sync"
 	"syscall"
 
-	log "github.com/golang/glog"
+	log "github.com/sirupsen/logrus"
 	"github.com/vishvananda/netlink"
 	"golang.org/x/net/context"
 

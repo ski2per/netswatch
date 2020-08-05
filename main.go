@@ -29,8 +29,8 @@ import (
 	"syscall"
 
 	"github.com/coreos/pkg/flagutil"
-	log "github.com/golang/glog"
 	"github.com/joho/godotenv"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 
 	"github.com/coreos/flannel/netswatch"
@@ -163,14 +163,21 @@ func init() {
 
 	// Only copy the non file logging options from glog
 	copyFlag("v")
-	copyFlag("vmodule")
-	copyFlag("log_backtrace_at")
+	// copyFlag("vmodule")
+	// copyFlag("log_backtrace_at")
 
 	// Define the usage function
 	flannelFlags.Usage = usage
 
 	// now parse command line args
 	flannelFlags.Parse(os.Args[1:])
+
+	// Init Logrus
+	log.SetFormatter(&log.TextFormatter{
+		FullTimestamp:   true,
+		TimestampFormat: "2006-01-02 15:04:05.00000",
+	})
+
 }
 
 func copyFlag(name string) {
