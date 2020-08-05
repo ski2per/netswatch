@@ -1,0 +1,28 @@
+version: '3.5'
+
+services:
+  netswatchgo:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: docker.cetcxl.local/netswatchgo:latest
+    hostname: nwgo
+    environment:
+      - NW_SUBNET_FILE=/run/flannel/sn.env
+      - NW_PUBLIC_IP=172.16.66.6
+      - NW_IFACE=172.16.66.6
+      - NW_ETCD_USERNAME=nw
+      - NW_ETCD_PASSWORD=nw
+      - NW_DNS_ENDPOINTS=http://172.16.66.10:8500
+      - NW_ORG_NAME=foo
+      - NW_DNS_TOKEN=7d039335-c001-f279-1df6-bd2adb706c93
+      - NW_ETCD_ENDPOINTS=http://172.16.66.10:2379
+      - NW_NETWORK_NAME=nwnet
+      - NW_NODE_TYPE=node
+    volumes:
+      - /run/flannel:/run/flannel:rw
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    cap_add:
+      - NET_ADMIN
+    network_mode: "host"
+    restart: always
