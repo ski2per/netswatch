@@ -80,9 +80,44 @@ func extractCtrIDs(m map[string]types.ContainerJSON) []string {
 
 }
 
+func syncContainers(ctx context.Context, dns DNSRegistry) {
+	// Get service IDs in Consul
+	svcIDs := dns.listSvcIDs()
+	fmt.Println("svcIDs length: ", len(svcIDs))
+
+	containers := listJoinedCtrs(ctx, dns.NetworkName)
+	ctrIDs := extractCtrIDs(containers)
+
+	remoteSet := NewSet()
+	remoteSet.AddList(&svcIDs)
+	fmt.Println(remoteSet.Size())
+
+	localSet := NewSet()
+	localSet.AddList(&ctrIDs)
+	fmt.Println(localSet.Size())
+
+	svc2Register := localSet.Difference(remoteSet)
+	fmt.Println("No. of services to register: ", svc2Register.Size())
+	for id := range svc2Register.content {
+		ctrJSON := containers[id]
+		log.Infof("Registering service: <%s>", ctrJSON.Name)
+		dns.registerSvc(&ctrJSON)
+	}
+	svc2Deregister := remoteSet.Difference(localSet)
+	fmt.Println("No. of services to deregister: ", svc2Deregister.Size())
+	for id := range svc2Deregister.content {
+		log.Infof("Deregistering service: <%s>", id)
+		dns.deregisterSvc(id)
+	}
+
+}
+
 func WatchCtrs(ctx context.Context, dns DNSRegistry, loop int) {
 	// Main func for watching
 	log.Info("ʕ•ಲ•ʔ Containers' watch begins")
+
+	// Synchronize containers first
+	syncContainers(ctx, dns)
 
 	filter := filters.NewArgs()
 	// Watch Docker events with type: "network"
@@ -107,35 +142,36 @@ func WatchCtrs(ctx context.Context, dns DNSRegistry, loop int) {
 		evtNetName := evt.Actor.Attributes["name"]
 		if evtNetName == netName {
 			log.Info("DETECT network connect/disconnect event")
+			syncContainers(ctx, dns)
 
-			// Get service IDs in Consul
-			svcIDs := dns.listSvcIDs()
-			fmt.Println("svcIDs length: ", len(svcIDs))
+			// // Get service IDs in Consul
+			// svcIDs := dns.listSvcIDs()
+			// fmt.Println("svcIDs length: ", len(svcIDs))
 
-			containers := listJoinedCtrs(ctx, dns.NetworkName)
-			ctrIDs := extractCtrIDs(containers)
+			// containers := listJoinedCtrs(ctx, dns.NetworkName)
+			// ctrIDs := extractCtrIDs(containers)
 
-			remoteSet := NewSet()
-			remoteSet.AddList(&svcIDs)
-			fmt.Println(remoteSet.Size())
+			// remoteSet := NewSet()
+			// remoteSet.AddList(&svcIDs)
+			// fmt.Println(remoteSet.Size())
 
-			localSet := NewSet()
-			localSet.AddList(&ctrIDs)
-			fmt.Println(localSet.Size())
+			// localSet := NewSet()
+			// localSet.AddList(&ctrIDs)
+			// fmt.Println(localSet.Size())
 
-			svc2Register := localSet.Difference(remoteSet)
-			fmt.Println("No. of services to register: ", svc2Register.Size())
-			for id := range svc2Register.content {
-				ctrJSON := containers[id]
-				log.Infof("Registering service: <%s>", ctrJSON.Name)
-				dns.registerSvc(&ctrJSON)
-			}
-			svc2Deregister := remoteSet.Difference(localSet)
-			fmt.Println("No. of services to deregister: ", svc2Deregister.Size())
-			for id := range svc2Deregister.content {
-				log.Infof("Deregistering service: <%s>", id)
-				dns.deregisterSvc(id)
-			}
+			// svc2Register := localSet.Difference(remoteSet)
+			// fmt.Println("No. of services to register: ", svc2Register.Size())
+			// for id := range svc2Register.content {
+			// 	ctrJSON := containers[id]
+			// 	log.Infof("Registering service: <%s>", ctrJSON.Name)
+			// 	dns.registerSvc(&ctrJSON)
+			// }
+			// svc2Deregister := remoteSet.Difference(localSet)
+			// fmt.Println("No. of services to deregister: ", svc2Deregister.Size())
+			// for id := range svc2Deregister.content {
+			// 	log.Infof("Deregistering service: <%s>", id)
+			// 	dns.deregisterSvc(id)
+			// }
 		}
 	}
 }
