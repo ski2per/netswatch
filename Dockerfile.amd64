@@ -1,13 +1,9 @@
-FROM alpine
+FROM alpine:3.7
+LABEL MAINTAINER="Ted <ski2per@gmail.com>"
 
-LABEL maintainer="Tom Denham <tom@tigera.io>"
+RUN sed -i s/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g /etc/apk/repositories && \
+    apk --no-cache add iptables
 
-ENV FLANNEL_ARCH=amd64
+COPY dist/flanneld-amd64 /usr/bin/flanneld
 
-RUN apk add --no-cache iproute2 net-tools ca-certificates iptables strongswan && update-ca-certificates
-RUN apk add wireguard-tools --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/community
-COPY dist/flanneld-$FLANNEL_ARCH /opt/bin/flanneld
-COPY dist/mk-docker-opts.sh /opt/bin/
-
-ENTRYPOINT ["/opt/bin/flanneld"]
-
+ENTRYPOINT ["flanneld"]

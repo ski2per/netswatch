@@ -1,7 +1,7 @@
 .PHONY: test e2e-test cover gofmt gofmt-fix header-check clean tar.gz docker-push release docker-push-all flannel-git
 
 # Registry used for publishing images
-REGISTRY?=quay.io/coreos/flannel
+REGISTRY?=docker.cetcxl.com/netswatch
 QEMU_VERSION=v3.0.0
 
 # Default tag and architecture. Can be overridden
@@ -141,12 +141,13 @@ endif
 
 # Make a release after creating a tag
 # To build cross platform Docker images, the qemu-static binaries are needed. On ubuntu "apt-get install  qemu-user-static"
-release: tar.gz dist/qemu-s390x-static dist/qemu-ppc64le-static dist/qemu-aarch64-static dist/qemu-arm-static #release-tests
+
+release: #tar.gz dist/qemu-s390x-static dist/qemu-ppc64le-static dist/qemu-aarch64-static dist/qemu-arm-static #release-tests
 	ARCH=amd64 make dist/flanneld-$(TAG)-amd64.docker
-	ARCH=arm make dist/flanneld-$(TAG)-arm.docker
-	ARCH=arm64 make dist/flanneld-$(TAG)-arm64.docker
-	ARCH=ppc64le make dist/flanneld-$(TAG)-ppc64le.docker
-	ARCH=s390x make dist/flanneld-$(TAG)-s390x.docker
+	#ARCH=arm make dist/flanneld-$(TAG)-arm.docker
+	#ARCH=arm64 make dist/flanneld-$(TAG)-arm64.docker
+	#ARCH=ppc64le make dist/flanneld-$(TAG)-ppc64le.docker
+	#ARCH=s390x make dist/flanneld-$(TAG)-s390x.docker
 	@echo "Everything should be built for $(TAG)"
 	@echo "Add all flanneld-* and *.tar.gz files from dist/ to the Github release"
 	@echo "Use make docker-push-all to push the images to a registry"
