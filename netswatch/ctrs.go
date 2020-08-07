@@ -114,7 +114,8 @@ func syncContainers(ctx context.Context, dns DNSRegistry) {
 
 func WatchCtrs(ctx context.Context, dns DNSRegistry, loop int) {
 	// Main func for watching
-	log.Info("ʕ•ಲ•ʔ Containers' watch begins")
+	log.Info("   ~")
+	log.Info("c[_] Containers' watch begins")
 
 	// Synchronize containers first
 	syncContainers(ctx, dns)

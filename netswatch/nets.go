@@ -124,10 +124,12 @@ func WatchNets(ctx context.Context, sm subnet.Manager, sn ip.IP4Net, netName str
 	for {
 		select {
 		case <-ctx.Done():
-			log.Info("ʕ•ಲ•ʔ Networks' watch is ended")
+			log.Info("   ~")
+			log.Info("c[_] Networks' watch is ended")
 			return
 		default:
-			log.Info("ʕ•ಲ•ʔ Networks' watch begins")
+			log.Info("   ~")
+			log.Info("c[_] Networks' watch begins")
 			createBridge(ctx, netName, sn)
 
 			// leases, err := sm.GetSubnets(ctx)
