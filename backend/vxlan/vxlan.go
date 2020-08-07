@@ -154,9 +154,6 @@ func (be *VXLANBackend) RegisterNetwork(ctx context.Context, wg sync.WaitGroup, 
 	if err != nil {
 		return nil, err
 	}
-	// fmt.Printf("%+v\n", be.extIface)
-	// fmt.Printf("%+v\n", meta)
-	// fmt.Printf("%T\n", subnetAttrs)
 
 	lease, err := be.subnetMgr.AcquireLease(ctx, subnetAttrs)
 	switch err {
