@@ -1,13 +1,13 @@
 .vscode
 dist/*.tar.gz
-dist/flanneld*
+dist/netswatch*
 dist/*.docker
 dist/here.txt
 cover.out
 .editorconfig
 .idea/
 default.etcd/
-flannel.exe
+netswatch.exe
 bash_unit
 dist/qemu-*
 
