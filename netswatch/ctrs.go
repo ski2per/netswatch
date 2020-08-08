@@ -26,24 +26,20 @@ import (
 )
 
 func getCtrName(ctr *types.ContainerJSON) string {
-	fmt.Printf("%+v\n", ctr.ContainerJSONBase)
 	labels := ctr.Config.Labels
-	fmt.Println(labels)
 
-	// When container run by docker-compose or swarm,
-	// labels map will not be empty
-	if len(labels) > 0 {
-		// docker-compose
-		if v, ok := labels["com.docker.compose.service"]; ok {
-			return v
-		}
-		//Docker Swarm
-		stack, _ := labels["com.docker.stack.namespace"]
+	if v, ok := labels["com.docker.compose.service"]; ok {
+		// Container run by docker-compose
+		return v
+	} else if v, ok := labels["com.docker.stack.namespace"]; ok {
+		// Container run by docker stack deploy (Docker Swarm)
+		stack := v
 		svc, _ := labels["com.docker.swarm.service.name"]
 		return strings.TrimPrefix(svc, stack+"_") // trim "_"
+	} else {
+		// Container run by "docker run"
+		return strings.TrimPrefix(ctr.Name, "/") // trim prefix "/"
 	}
-	// container by "docker run"
-	return strings.TrimPrefix(ctr.Name, "/") // trim prefix "/"
 }
 
 func listJoinedCtrs(ctx context.Context, name string) map[string]types.ContainerJSON {
