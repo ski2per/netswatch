@@ -26,7 +26,9 @@ import (
 )
 
 func getCtrName(ctr *types.ContainerJSON) string {
+	fmt.Printf("%+v\n", ctr.ContainerJSONBase)
 	labels := ctr.Config.Labels
+	fmt.Println(labels)
 
 	// When container run by docker-compose or swarm,
 	// labels map will not be empty
@@ -143,35 +145,6 @@ func WatchCtrs(ctx context.Context, dns DNSRegistry, loop int) {
 			log.Info("   ~")
 			log.Info("c[_] GOT NETWORK connect/disconnect EVENT")
 			syncContainers(ctx, dns)
-
-			// // Get service IDs in Consul
-			// svcIDs := dns.listSvcIDs()
-			// fmt.Println("svcIDs length: ", len(svcIDs))
-
-			// containers := listJoinedCtrs(ctx, dns.NetworkName)
-			// ctrIDs := extractCtrIDs(containers)
-
-			// remoteSet := NewSet()
-			// remoteSet.AddList(&svcIDs)
-			// fmt.Println(remoteSet.Size())
-
-			// localSet := NewSet()
-			// localSet.AddList(&ctrIDs)
-			// fmt.Println(localSet.Size())
-
-			// svc2Register := localSet.Difference(remoteSet)
-			// fmt.Println("No. of services to register: ", svc2Register.Size())
-			// for id := range svc2Register.content {
-			// 	ctrJSON := containers[id]
-			// 	log.Infof("Registering service: <%s>", ctrJSON.Name)
-			// 	dns.registerSvc(&ctrJSON)
-			// }
-			// svc2Deregister := remoteSet.Difference(localSet)
-			// fmt.Println("No. of services to deregister: ", svc2Deregister.Size())
-			// for id := range svc2Deregister.content {
-			// 	log.Infof("Deregistering service: <%s>", id)
-			// 	dns.deregisterSvc(id)
-			// }
 		}
 	}
 }

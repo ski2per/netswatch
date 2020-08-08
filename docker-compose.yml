@@ -6,19 +6,22 @@ services:
       context: ./
       dockerfile: Dockerfile
     image: docker.cetcxl.local/netswatchgo:latest
-    hostname: nwgo
     environment:
-      - NW_SUBNET_FILE=/run/flannel/sn.env
-      - NW_PUBLIC_IP=172.16.66.6
-      - NW_IFACE=172.16.66.6
+      - NW_ETCD_ENDPOINTS=http://etcd.cetcxl.com:2379
       - NW_ETCD_USERNAME=nw
-      - NW_ETCD_PASSWORD=nw
-      - NW_DNS_ENDPOINTS=http://172.16.66.10:8500
-      - NW_ORG_NAME=foo
+      - NW_ETCD_PASSWORD=P@ssw0rd
+      - NW_SUBNET_FILE=/run/flannel/sn.env
+      - NW_PUBLIC_IP=182.139.87.108
+      - NW_IFACE=172.16.10.100
+      - NW_DNS_ENDPOINTS=http://mail.cetcxl.com:8500
       - NW_DNS_TOKEN=7d039335-c001-f279-1df6-bd2adb706c93
-      - NW_ETCD_ENDPOINTS=http://172.16.66.10:2379
-      - NW_NETWORK_NAME=nwnet
-      - NW_NODE_TYPE=node
+      - NW_NETWORK_NAME=skynet
+      - NW_ORG_NAME=banana
+      - NW_NODE_TYPE=router
+      - NW_NETDATA_PORT=19999
+      - NW_NETDATA_ENABLED=true
+      - NW_LOG_LEVEL=debug
+      - GODEBUG=netdns=go
     volumes:
       - /run/flannel:/run/flannel:rw
       - /var/run/docker.sock:/var/run/docker.sock:ro
