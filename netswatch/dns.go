@@ -86,7 +86,6 @@ func (dnsr *DNSRegistry) registerSvc(ctr *types.ContainerJSON) {
 	svc.Name = fmt.Sprintf("%s-%s-%s", formatServiceString(dnsr.OrgName), dnsr.NodeName, getCtrName(ctr))
 	svc.Address = ctr.NetworkSettings.Networks[dnsr.NetworkName].IPAddress
 	svc.Tags = []string{dnsr.OrgName, dnsr.NodeName}
-	// tags := []string{dnsr.OrgName, dnsr.NodeName}
 
 	// Extend service with Netdata data when NW_NETDATA_ENABLED is true
 	if dnsr.NetdataEnabled {

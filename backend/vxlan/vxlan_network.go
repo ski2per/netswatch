@@ -72,7 +72,7 @@ func (nw *network) Run(ctx context.Context) {
 		select {
 		case evtBatch := <-events:
 			log.Info("   ~")
-			log.Info("c[_] Got lease events")
+			log.Info("c[_] GOT LEASE EVENT")
 			nw.handleSubnetEvents(ctx, evtBatch)
 
 		case <-ctx.Done():

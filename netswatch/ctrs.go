@@ -90,11 +90,9 @@ func syncContainers(ctx context.Context, dns DNSRegistry) {
 
 	remoteSet := NewSet()
 	remoteSet.AddList(&svcIDs)
-	fmt.Println(remoteSet.Size())
 
 	localSet := NewSet()
 	localSet.AddList(&ctrIDs)
-	fmt.Println(localSet.Size())
 
 	svc2Register := localSet.Difference(remoteSet)
 	fmt.Println("No. of services to register: ", svc2Register.Size())
@@ -142,7 +140,8 @@ func WatchCtrs(ctx context.Context, dns DNSRegistry, loop int) {
 	for evt := range evtCh {
 		evtNetName := evt.Actor.Attributes["name"]
 		if evtNetName == netName {
-			log.Info("DETECT network connect/disconnect event")
+			log.Info("   ~")
+			log.Info("c[_] GOT NETWORK connect/disconnect EVENT")
 			syncContainers(ctx, dns)
 
 			// // Get service IDs in Consul

@@ -94,7 +94,7 @@ func createBridge(ctx context.Context, brName string, sn ip.IP4Net) {
 		panic(err)
 	}
 
-	ncResp, err := cli.NetworkCreate(ctx, brName, nc)
+	networkResp, err := cli.NetworkCreate(ctx, brName, nc)
 	// Network with "brName" exists, check its IPAM
 	// Todo:
 	// 	* Add logic to error type
@@ -109,14 +109,14 @@ func createBridge(ctx context.Context, brName string, sn ip.IP4Net) {
 		}
 
 		if runningSubnet == subnet {
-			log.Infof("Bridge network <%v> synchronized with Flannel", brName)
+			log.Infof("Bridge network <%v> synchronized", brName)
 		} else {
 			log.Error("!!! Bridge is not synchronized")
 			// Add a "god mod" later,
 			// force remove bridge network even with containers in it.
 		}
 	} else {
-		log.Infof("Bridge network <%v> created with ID: <%v>", brName, ncResp.ID)
+		log.Infof("Bridge network <%v> created with ID: <%v>", brName, networkResp.ID)
 	}
 }
 
@@ -125,39 +125,14 @@ func WatchNets(ctx context.Context, sm subnet.Manager, sn ip.IP4Net, netName str
 		select {
 		case <-ctx.Done():
 			log.Info("   ~")
-			log.Info("c[_] Networks' watch is ended")
+			log.Info("c[_] NETWORKS' WATCH IS ENDED")
 			return
 		default:
 			log.Info("   ~")
-			log.Info("c[_] Networks' watch begins")
+			log.Info("c[_] NETWORKS' WATCH BEGINS")
 			createBridge(ctx, netName, sn)
 
-			// leases, err := sm.GetSubnets(ctx)
-			// if err != nil {
-			// 	panic(err)
-			// }
-			// fmt.Println(len(leases))
-			// for _, lease := range leases {
-			// 	fmt.Printf("%v\n", lease.Attrs.PublicIP)
-			// 	fmt.Printf("%v\n", lease.Attrs.BackendType)
-
-			// 	mac := struct{ VtepMac string }{}
-
-			// 	if err := json.Unmarshal(lease.Attrs.BackendData, &mac); err != nil {
-			// 		panic(err)
-			// 	}
-			// 	fmt.Println(mac.VtepMac)
-
-			// 	var m NodeMeta
-			// 	if err := json.Unmarshal(lease.Attrs.Meta, &m); err != nil {
-			// 		panic(err)
-			// 	}
-			// 	fmt.Printf("%v\n", m.HostIP)
-			// 	fmt.Printf("%v\n", m.NodeName)
-			// 	fmt.Println("-----------------------------")
-
-			// }
-			time.Sleep(30 * time.Second)
+			time.Sleep(time.Duration(loop) * time.Second)
 		}
 
 	}
