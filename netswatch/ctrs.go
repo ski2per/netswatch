@@ -110,8 +110,9 @@ func syncContainers(ctx context.Context, dns DNSRegistry) {
 
 func WatchCtrs(ctx context.Context, dns DNSRegistry, loop int) {
 	// Main func for watching
+	log.Info("     ~")
 	log.Info("   ~")
-	log.Info("c[_] Containers' watch begins")
+	log.Info("c[_] CONTAINERS' WATCH BEGINS")
 
 	// Synchronize containers first
 	syncContainers(ctx, dns)
@@ -138,6 +139,7 @@ func WatchCtrs(ctx context.Context, dns DNSRegistry, loop int) {
 	for evt := range evtCh {
 		evtNetName := evt.Actor.Attributes["name"]
 		if evtNetName == netName {
+			log.Info("     ~")
 			log.Info("   ~")
 			log.Info("c[_] GOT NETWORK connect/disconnect EVENT")
 			syncContainers(ctx, dns)
