@@ -1,11 +1,15 @@
 .PHONY: test e2e-test cover gofmt gofmt-fix header-check clean tar.gz docker-push release docker-push-all flannel-git
 
 # Registry used for publishing images
-REGISTRY?=docker.cetcxl.com/netswatch
+REGISTRY?=docker.cetcxl.local/netswatch
 QEMU_VERSION=v3.0.0
 
 # Default tag and architecture. Can be overridden
 TAG?=$(shell git describe --tags --dirty)
+ifeq ($(TAG),)
+	TAG=latest
+endif
+
 ARCH?=amd64
 # Only enable CGO (and build the UDP backend) on AMD64
 ifeq ($(ARCH),amd64)
