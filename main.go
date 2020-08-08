@@ -222,13 +222,12 @@ func newSubnetManager() (subnet.Manager, error) {
 }
 
 func main() {
-	// Add by Ted, just for fun :P
-	netswatch.Logo()
-
 	if opts.version {
 		fmt.Fprintln(os.Stderr, version.Version)
 		os.Exit(0)
 	}
+	// Add by Ted, just for fun :P
+	netswatch.Logo()
 
 	// Validate flags
 	if opts.subnetLeaseRenewMargin >= 24*60 || opts.subnetLeaseRenewMargin <= 0 {
