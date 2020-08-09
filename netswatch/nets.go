@@ -120,6 +120,7 @@ func createBridge(ctx context.Context, brName string, sn ip.IP4Net) {
 	}
 }
 
+// WatchNets is a function run periodically to check Docker bridge for Netswatch
 func WatchNets(ctx context.Context, sm subnet.Manager, sn ip.IP4Net, netName string, loop int) {
 	for {
 		select {

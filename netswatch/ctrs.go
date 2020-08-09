@@ -108,6 +108,8 @@ func syncContainers(ctx context.Context, dns DNSRegistry) {
 
 }
 
+// WatchCtrs is the function for watch container network releated event,
+// and register/deregister containers as services in Consul.
 func WatchCtrs(ctx context.Context, dns DNSRegistry, loop int) {
 	// Main func for watching
 	log.Info("     ~")
