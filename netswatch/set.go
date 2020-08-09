@@ -14,15 +14,16 @@
 
 package netswatch
 
-type void struct{} //Empty stuct, 0 byte
+type zero struct{} // Empty stuct, 0 byte
 
+// Set is a data structure like Python
 type Set struct {
-	content map[string]void
+	content map[string]zero
 }
 
 func NewSet() *Set {
 	s := &Set{}
-	s.content = make(map[string]void)
+	s.content = make(map[string]zero)
 	return s
 }
 
@@ -32,7 +33,7 @@ func (s *Set) Has(v string) bool {
 }
 
 func (s *Set) Add(v string) {
-	s.content[v] = void{}
+	s.content[v] = zero{}
 }
 
 func (s *Set) AddList(l *[]string) {
@@ -50,7 +51,7 @@ func (s *Set) Size() int {
 }
 
 func (s *Set) Clear() {
-	s.content = make(map[string]void)
+	s.content = make(map[string]zero)
 }
 
 func (s *Set) Union(s2 *Set) *Set {
