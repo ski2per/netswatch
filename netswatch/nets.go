@@ -111,7 +111,7 @@ func createBridge(ctx context.Context, brName string, sn ip.IP4Net) {
 		if runningSubnet == subnet {
 			log.Infof("Bridge network <%v> synchronized", brName)
 		} else {
-			log.Error("!!! Bridge is not synchronized")
+			log.Error("!!! Bridge is not synchronized (Maybe bridge using old subnet, GOD mode TBD)")
 			// Add a "god mod" later,
 			// force remove bridge network even with containers in it.
 		}
