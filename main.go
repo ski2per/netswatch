@@ -150,12 +150,12 @@ func init() {
 	flannelFlags.StringVar(&opts.dnsEndpoint, "dns-endpoints", "http://127.0.0.1:8500", "Consul DNS endpoint")
 	flannelFlags.StringVar(&opts.dnsToken, "dns-token", "", "Consul DNS token")
 	flannelFlags.StringVar(&opts.networkName, "network-name", "netswatch", "Netswatch bridge network name")
-	flannelFlags.StringVar(&opts.orgName, "org-name", "default.com", "Netswatch organization name")
+	flannelFlags.StringVar(&opts.orgName, "org-name", "default.local", "Netswatch organization name")
 	flannelFlags.StringVar(&opts.nodeName, "node-name", "", "Netswatch node name: 'default-node'(when hostname not found)")
 	flannelFlags.StringVar(&opts.nodeType, "node-type", "internal", "Netswatch routing type: router | node | internal")
-	flannelFlags.BoolVar(&opts.netdataEnabled, "netdata-enabled", false, "Extend Netdata service when registering")
+	flannelFlags.BoolVar(&opts.netdataEnabled, "netdata-enabled", false, "Extend Netdata for service registration")
 	flannelFlags.IntVar(&opts.netdataPort, "netdata-port", 19999, "Netdata metrics port")
-	flannelFlags.IntVar(&opts.loop, "loop", 60, "Netswatch loop interval")
+	flannelFlags.IntVar(&opts.loop, "loop", 60, "Netswatch loop(seconds)")
 	flannelFlags.StringVar(&opts.logLevel, "log-level", "debug", "Logging level")
 
 	// glog will log to tmp files by default. override so all entries
