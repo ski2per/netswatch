@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"net"
 	"regexp"
+	"strings"
 
 	"github.com/docker/docker/api/types"
 	consul "github.com/hashicorp/consul/api"
@@ -88,7 +89,7 @@ func (dnsr *DNSRegistry) registerSvc(ctr *types.ContainerJSON) {
 	svc.Tags = []string{dnsr.OrgName, dnsr.NodeName}
 
 	// Extend service with Netdata data when NW_NETDATA_ENABLED is true
-	if dnsr.NetdataEnabled {
+	if dnsr.NetdataEnabled && strings.Contains(svc.Name, "netdata") {
 		svc.Tags = append(svc.Tags, "netdata")
 		svc.Port = dnsr.NetdataPort
 		svcMeta := map[string]string{
