@@ -140,7 +140,7 @@ func (nw *network) handleSubnetEvents(ctx context.Context, batch []subnet.Event)
 			Dst:       sn.ToIPNet(),
 		}
 
-		if len(routers) <= 0 || currentNodeType == "internal" || meta.NodeType == "interal" || meta.OrgName == currentOrgName {
+		if len(routers) <= 0 || currentNodeType == "internal" || meta.NodeType == "internal" || meta.OrgName == currentOrgName {
 			log.Debug("++++++++++++++++ default route ++++++++++++++++")
 			log.Debugf("Current node type: %s", currentNodeType)
 			log.Debugf("Meta node type: %s", meta.NodeType)
