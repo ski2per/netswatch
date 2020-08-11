@@ -13,7 +13,7 @@ services:
       - NW_SUBNET_FILE=/run/flannel/sn.env
       - NW_PUBLIC_IP=10.0.0.110
       - NW_IFACE=10.0.0.110
-      - NW_DNS_ENDPOINTS=http://mail.cetcxl.com:8500
+      - NW_DNS_ENDPOINTS=http://consul.cetcxl.com:8500
       - NW_DNS_TOKEN=abcdefgh-1234-abcd-1234-abcdefghijkl
       - NW_NETWORK_NAME=nwnet
       - NW_ORG_NAME=banana
