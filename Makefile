@@ -10,6 +10,10 @@ ifeq ($(TAG),)
 	TAG=latest
 endif
 
+ifeq ($(findstring dirty,$(TAG)), dirty)
+    TAG=latest
+endif
+
 ARCH?=amd64
 # Only enable CGO (and build the UDP backend) on AMD64
 ifeq ($(ARCH),amd64)
