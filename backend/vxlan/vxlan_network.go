@@ -71,8 +71,6 @@ func (nw *network) Run(ctx context.Context) {
 	for {
 		select {
 		case evtBatch := <-events:
-			log.Info("     ~")
-			log.Info("   ~")
 			log.Info("c[_] GOT LEASE EVENT")
 			nw.handleSubnetEvents(ctx, evtBatch)
 

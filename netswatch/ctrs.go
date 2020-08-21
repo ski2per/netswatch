@@ -112,8 +112,6 @@ func syncContainers(ctx context.Context, dns DNSRegistry) {
 // and register/deregister containers as services in Consul.
 func WatchCtrs(ctx context.Context, dns DNSRegistry, loop int) {
 	// Main func for watching
-	log.Info("     ~")
-	log.Info("   ~")
 	log.Info("c[_] CONTAINERS' WATCH BEGINS")
 
 	// Synchronize containers first
@@ -141,8 +139,6 @@ func WatchCtrs(ctx context.Context, dns DNSRegistry, loop int) {
 	for evt := range evtCh {
 		evtNetName := evt.Actor.Attributes["name"]
 		if evtNetName == netName {
-			log.Info("     ~")
-			log.Info("   ~")
 			log.Info("c[_] GOT NETWORK connect/disconnect EVENT")
 			syncContainers(ctx, dns)
 		}
