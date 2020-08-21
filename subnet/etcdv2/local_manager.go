@@ -30,7 +30,8 @@ import (
 
 const (
 	raceRetries = 10
-	subnetTTL   = 24 * time.Hour
+	// subnetTTL   = 24 * time.Hour
+	subnetTTL = 2 * time.Minute
 )
 
 type LocalManager struct {

@@ -117,6 +117,7 @@ func MakeSubnetKey(sn ip.IP4Net) string {
 	return sn.StringSep(".", "-")
 }
 
+// See in local_manager.go
 type Manager interface {
 	GetNetworkConfig(ctx context.Context) (*Config, error)
 	AcquireLease(ctx context.Context, attrs *LeaseAttrs) (*Lease, error)

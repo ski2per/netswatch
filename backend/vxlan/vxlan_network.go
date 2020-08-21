@@ -144,7 +144,7 @@ func (nw *network) handleSubnetEvents(ctx context.Context, batch []subnet.Event)
 			log.Debugf("Meta node type: %s", meta.NodeType)
 			log.Debugf("Current org name: %s", currentOrgName)
 			log.Debugf("Meta org name: %s", meta.OrgName)
-			log.Debug("------------------------------ ----------------")
+			log.Debug("-----------------------------------------------")
 			// No need to adjust route, use default Flannel route, i.e:
 			// n0 via n0 dev nw.100 onlink
 			// n1 via n1 dev nw.100 onlink
