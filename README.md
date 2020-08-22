@@ -49,12 +49,11 @@ Develop under Go 1.14
 ## Test
 Still in progress
 
-# Sidecar(To be migrated from Python version)
+# [Sidecar](https://github.com/ski2per/s1decar.git)
 
-**sidecar** includes 2 functions:
+**sidecar** includes 1 functions:
 
 * Generate Netwswatch network topology for debugging
-* Synchronize nodes and subnets, and delete orphan nodes(nodes not in subnets)
 
 ![Logo](pics/preview.png) 
 
