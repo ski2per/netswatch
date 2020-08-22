@@ -392,28 +392,37 @@ func (m *LocalManager) GetSubnets(ctx context.Context) ([]Lease, error) {
 	return leases, err
 }
 
-// func (m *LocalManager) GetRouters(ctx context.Context) {
 func (m *LocalManager) GetRouters(ctx context.Context) map[string]ip.IP4Net {
-	leases, _, err := m.registry.getSubnets(ctx)
-	if err != nil {
-		log.Error("Error while getting routers: ", err)
-	}
+	retry := 10
 
-	meta := struct {
-		OrgName  string
-		NodeType string
-	}{}
+	for i := 0; i < retry; i++ {
+		leases, _, err := m.registry.getSubnets(ctx)
+		if err != nil {
+			log.Error("Error while getting routers: ", err)
+			log.Errorf("retry %d time(s)", i+1)
+			time.Sleep(time.Second)
+			continue
+		} else {
+			meta := struct {
+				OrgName  string
+				NodeType string
+			}{}
 
-	router := make(map[string]ip.IP4Net)
+			router := make(map[string]ip.IP4Net)
 
-	for _, lease := range leases {
-		if err := json.Unmarshal(lease.Attrs.Meta, &meta); err != nil {
-			log.Error("Error while unmarshal node type: ", err)
+			for _, lease := range leases {
+				if err := json.Unmarshal(lease.Attrs.Meta, &meta); err != nil {
+					log.Error("Error while unmarshal node type: ", err)
+				}
+
+				if meta.NodeType == "router" {
+					router[meta.OrgName] = lease.Subnet
+				}
+			}
+			return router
 		}
-
-		if meta.NodeType == "router" {
-			router[meta.OrgName] = lease.Subnet
-		}
 	}
-	return router
+	log.Errorf("!!! GET ROUTERS FAILED EVEN RETRY %d TIMES", retry)
+	// return empty map
+	return make(map[string]ip.IP4Net)
 }

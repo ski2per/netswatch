@@ -507,7 +507,7 @@ func MonitorLease(ctx context.Context, sm subnet.Manager, bn backend.Network, wg
 	for {
 		select {
 		case <-time.After(dur):
-			fmt.Println("------MonitorLease()]------")
+			fmt.Println("------MonitorLease()------")
 			err := sm.RenewLease(ctx, bn.Lease())
 			if err != nil {
 				log.Error("Error renewing lease (trying again in 1 min): ", err)
@@ -519,7 +519,7 @@ func MonitorLease(ctx context.Context, sm subnet.Manager, bn backend.Network, wg
 			dur = bn.Lease().Expiration.Sub(time.Now()) - renewMargin
 
 		case e := <-evts:
-			fmt.Println("======MonitorLease()]======")
+			fmt.Println("======MonitorLease()======")
 			switch e.Type {
 			case subnet.EventAdded:
 				bn.Lease().Expiration = e.Lease.Expiration
@@ -532,7 +532,7 @@ func MonitorLease(ctx context.Context, sm subnet.Manager, bn backend.Network, wg
 			}
 
 		case <-ctx.Done():
-			fmt.Println("######[MonitorLease()]######")
+			fmt.Println("######MonitorLease()######")
 			log.Infof("Stopped monitoring lease")
 			return errCanceled
 		}
