@@ -49,6 +49,10 @@ Develop under Go 1.14
 ## Test
 Still in progress
 
+
+## Known issues and todo
+* Add periodic check for service register(services won't be registered when start before Netswatch)
+
 # [Sidecar](https://github.com/ski2per/s1decar.git)
 
 **sidecar** includes 1 functions:
