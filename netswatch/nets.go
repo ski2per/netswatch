@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"strings"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -100,7 +101,7 @@ func createBridge(ctx context.Context, brName string, sn ip.IP4Net) {
 	// 	* Add logic to error type
 
 	if err != nil {
-		log.Info(err)
+		log.Info(strings.Split(err.Error(), ": ")[1])
 		nr, _ := cli.NetworkInspect(ctx, brName)
 
 		var runningSubnet string
