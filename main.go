@@ -401,8 +401,14 @@ func main() {
 
 	wg.Add(1)
 	go func() {
-		netswatch.WatchCtrs(ctx, dns, opts.loop)
+		netswatch.WatchCtrEvents(ctx, dns, opts.loop)
 		// netswatch.Debug(ctx, dns, opts.loop)
+		wg.Done()
+	}()
+
+	wg.Add(1)
+	go func() {
+		netswatch.WatchCtrs(ctx, dns)
 		wg.Done()
 	}()
 	// ------------------------------------

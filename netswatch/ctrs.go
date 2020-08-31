@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
@@ -108,11 +109,11 @@ func syncContainers(ctx context.Context, dns DNSRegistry) {
 
 }
 
-// WatchCtrs is the function for watch container network releated event,
+// WatchCtrEvents is the function for watch container network releated event,
 // and register/deregister containers as services in Consul.
-func WatchCtrs(ctx context.Context, dns DNSRegistry, loop int) {
+func WatchCtrEvents(ctx context.Context, dns DNSRegistry, loop int) {
 	// Main func for watching
-	log.Info("c[_] CONTAINERS' WATCH BEGINS 🍔")
+	log.Info("c[_] CONTAINERS' EVENTS WATCH BEGINS")
 
 	// Synchronize containers first
 	syncContainers(ctx, dns)
@@ -142,5 +143,30 @@ func WatchCtrs(ctx context.Context, dns DNSRegistry, loop int) {
 			log.Info("c[_] GOT NETWORK connect/disconnect EVENT 🍔")
 			syncContainers(ctx, dns)
 		}
+	}
+}
+
+func WatchCtrs(ctx context.Context, dns DNSRegistry) {
+	MAX := 600
+	sleep := 10
+	for {
+
+		if sleep < MAX {
+			sleep *= 2
+		} else {
+			sleep = 1
+		}
+
+		select {
+		case <-ctx.Done():
+			log.Info("c[_] CONTAINERS' WATCH IS ENDED")
+			return
+		default:
+			fmt.Println(sleep)
+			time.Sleep(time.Duration(sleep) * time.Second)
+			log.Info("c[_] CONTAINERS' WATCH BEGINS")
+			syncContainers(ctx, dns)
+		}
+
 	}
 }
