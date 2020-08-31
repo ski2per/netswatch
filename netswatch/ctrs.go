@@ -16,7 +16,6 @@ package netswatch
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"time"
 
@@ -82,7 +81,7 @@ func extractCtrIDs(m map[string]types.ContainerJSON) []string {
 func syncContainers(ctx context.Context, dns DNSRegistry) {
 	// Get service IDs in Consul
 	svcIDs := dns.listSvcIDs()
-	fmt.Println("svcIDs length: ", len(svcIDs))
+	log.Debug("svcIDs length: ", len(svcIDs))
 
 	containers := listJoinedCtrs(ctx, dns.NetworkName)
 	ctrIDs := extractCtrIDs(containers)
@@ -94,14 +93,14 @@ func syncContainers(ctx context.Context, dns DNSRegistry) {
 	localSet.AddList(&ctrIDs)
 
 	svc2Register := localSet.Difference(remoteSet)
-	fmt.Println("No. of services to register: ", svc2Register.Size())
+	log.Debug("No. of services to register: ", svc2Register.Size())
 	for id := range svc2Register.content {
 		ctrJSON := containers[id]
 		log.Infof("Registering service: <%s>", ctrJSON.Name)
 		dns.registerSvc(&ctrJSON)
 	}
 	svc2Deregister := remoteSet.Difference(localSet)
-	fmt.Println("No. of services to deregister: ", svc2Deregister.Size())
+	log.Debug("No. of services to deregister: ", svc2Deregister.Size())
 	for id := range svc2Deregister.content {
 		log.Infof("Deregistering service: <%s>", id)
 		dns.deregisterSvc(id)
@@ -111,12 +110,9 @@ func syncContainers(ctx context.Context, dns DNSRegistry) {
 
 // WatchCtrEvents is the function for watch container network releated event,
 // and register/deregister containers as services in Consul.
-func WatchCtrEvents(ctx context.Context, dns DNSRegistry, loop int) {
+func WatchCtrEvents(ctx context.Context, dns DNSRegistry) {
 	// Main func for watching
 	log.Info("c[_] CONTAINERS' EVENTS WATCH BEGINS")
-
-	// Synchronize containers first
-	syncContainers(ctx, dns)
 
 	filter := filters.NewArgs()
 	// Watch Docker events with type: "network"
@@ -146,12 +142,10 @@ func WatchCtrEvents(ctx context.Context, dns DNSRegistry, loop int) {
 	}
 }
 
-func WatchCtrs(ctx context.Context, dns DNSRegistry) {
-	MAX := 600
-	sleep := 10
+func WatchCtrs(ctx context.Context, dns DNSRegistry, maxLoop int) {
+	sleep := 1
 	for {
-
-		if sleep < MAX {
+		if sleep < maxLoop {
 			sleep *= 2
 		} else {
 			sleep = 1
@@ -162,10 +156,9 @@ func WatchCtrs(ctx context.Context, dns DNSRegistry) {
 			log.Info("c[_] CONTAINERS' WATCH IS ENDED")
 			return
 		default:
-			fmt.Println(sleep)
-			time.Sleep(time.Duration(sleep) * time.Second)
 			log.Info("c[_] CONTAINERS' WATCH BEGINS")
 			syncContainers(ctx, dns)
+			time.Sleep(time.Duration(sleep) * time.Second)
 		}
 
 	}

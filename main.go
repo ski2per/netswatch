@@ -155,7 +155,7 @@ func init() {
 	flannelFlags.StringVar(&opts.nodeType, "node-type", "internal", "Netswatch routing type: router | node | internal")
 	flannelFlags.BoolVar(&opts.netdataEnabled, "netdata-enabled", false, "Extend Netdata for service registration")
 	flannelFlags.IntVar(&opts.netdataPort, "netdata-port", 19999, "Netdata metrics port")
-	flannelFlags.IntVar(&opts.loop, "loop", 60, "Netswatch loop(seconds)")
+	flannelFlags.IntVar(&opts.loop, "loop", 600, "Netswatch max loop(seconds)")
 	flannelFlags.StringVar(&opts.logLevel, "log-level", "debug", "Logging level")
 
 	// glog will log to tmp files by default. override so all entries
@@ -402,14 +402,13 @@ func main() {
 
 	wg.Add(1)
 	go func() {
-		netswatch.WatchCtrEvents(ctx, dns, opts.loop)
-		// netswatch.Debug(ctx, dns, opts.loop)
+		netswatch.WatchCtrEvents(ctx, dns)
 		wg.Done()
 	}()
 
 	wg.Add(1)
 	go func() {
-		netswatch.WatchCtrs(ctx, dns)
+		netswatch.WatchCtrs(ctx, dns, opts.loop)
 		wg.Done()
 	}()
 	// ------------------------------------
@@ -514,7 +513,7 @@ func MonitorLease(ctx context.Context, sm subnet.Manager, bn backend.Network, wg
 	for {
 		select {
 		case <-time.After(dur):
-			fmt.Println("------MonitorLease()------")
+			log.Debug("------MonitorLease()------")
 			err := sm.RenewLease(ctx, bn.Lease())
 			if err != nil {
 				log.Error("Error renewing lease (trying again in 1 min): ", err)
@@ -526,7 +525,7 @@ func MonitorLease(ctx context.Context, sm subnet.Manager, bn backend.Network, wg
 			dur = bn.Lease().Expiration.Sub(time.Now()) - renewMargin
 
 		case e := <-evts:
-			fmt.Println("======MonitorLease()======")
+			log.Debug("======MonitorLease()======")
 			switch e.Type {
 			case subnet.EventAdded:
 				bn.Lease().Expiration = e.Lease.Expiration
@@ -539,7 +538,7 @@ func MonitorLease(ctx context.Context, sm subnet.Manager, bn backend.Network, wg
 			}
 
 		case <-ctx.Done():
-			fmt.Println("######MonitorLease()######")
+			log.Debug("######MonitorLease()######")
 			log.Infof("Stopped monitoring lease")
 			return errCanceled
 		}
@@ -725,7 +724,7 @@ func getNodeName(s string) string {
 		name, err := os.Hostname()
 		if err != nil {
 			log.Error("Get hostname error")
-			fmt.Printf("%v", err)
+			log.Error("%v", err)
 			name = "default-node"
 		}
 		return name

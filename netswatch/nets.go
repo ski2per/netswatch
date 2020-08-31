@@ -122,8 +122,15 @@ func createBridge(ctx context.Context, brName string, sn ip.IP4Net) {
 }
 
 // WatchNets is a function run periodically to check Docker bridge for Netswatch
-func WatchNets(ctx context.Context, sm subnet.Manager, sn ip.IP4Net, netName string, loop int) {
+func WatchNets(ctx context.Context, sm subnet.Manager, sn ip.IP4Net, netName string, maxLoop int) {
+	sleep := 1
 	for {
+		if sleep < maxLoop {
+			sleep *= 20
+		} else {
+			sleep = 1
+		}
+
 		select {
 		case <-ctx.Done():
 			log.Info("c[_] NETWORKS' WATCH IS ENDED")
@@ -132,7 +139,7 @@ func WatchNets(ctx context.Context, sm subnet.Manager, sn ip.IP4Net, netName str
 			log.Info("c[_] NETWORKS' WATCH BEGINS")
 			createBridge(ctx, netName, sn)
 
-			time.Sleep(time.Duration(loop) * time.Second)
+			time.Sleep(time.Duration(sleep) * time.Second)
 		}
 
 	}
