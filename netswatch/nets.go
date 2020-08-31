@@ -30,8 +30,7 @@ import (
 	"github.com/docker/docker/client"
 )
 
-type IP uint32
-
+// NodeMeta : Struct for meta info of node
 type NodeMeta struct {
 	OrgName  string
 	NodeType string
@@ -39,6 +38,7 @@ type NodeMeta struct {
 	HostIP   net.IP
 }
 
+// Logo : Print Netswatch logo
 func Logo() {
 	fmt.Println("                                                 ")
 	fmt.Println("                  +o                             ")

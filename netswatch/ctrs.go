@@ -142,6 +142,7 @@ func WatchCtrEvents(ctx context.Context, dns DNSRegistry) {
 	}
 }
 
+// WatchCtrs is a function for shnchronizing containers periodically
 func WatchCtrs(ctx context.Context, dns DNSRegistry, maxLoop int) {
 	sleep := 1
 	for {

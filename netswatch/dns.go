@@ -25,6 +25,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// DNSRegistry : Struct for Consul registry
 type DNSRegistry struct {
 	Agent          consul.Agent
 	Endpoint       string
@@ -50,6 +51,7 @@ func formatServiceString(s string) string {
 	return replaced.ReplaceAllString(s, "-")
 }
 
+// InitAgent : Init Consul agent
 func (dnsr *DNSRegistry) InitAgent() {
 	cli, err := consul.NewClient(&consul.Config{
 		Address: dnsr.Endpoint,

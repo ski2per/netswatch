@@ -21,39 +21,47 @@ type Set struct {
 	content map[string]zero
 }
 
+// NewSet : Create new set
 func NewSet() *Set {
 	s := &Set{}
 	s.content = make(map[string]zero)
 	return s
 }
 
+// Has : Check item's existence
 func (s *Set) Has(v string) bool {
 	_, ok := s.content[v]
 	return ok
 }
 
+// Add : Add item to set
 func (s *Set) Add(v string) {
 	s.content[v] = zero{}
 }
 
+// AddList : Add list to set
 func (s *Set) AddList(l *[]string) {
 	for _, v := range *l {
 		s.Add(v)
 	}
 }
 
+// Remove : Remove item from set
 func (s *Set) Remove(v string) {
 	delete(s.content, v)
 }
 
+// Size : Retrun size of set
 func (s *Set) Size() int {
 	return len(s.content)
 }
 
+// Clear : Clear set
 func (s *Set) Clear() {
 	s.content = make(map[string]zero)
 }
 
+// Union : Union operation of set
 func (s *Set) Union(s2 *Set) *Set {
 	ns := NewSet()
 	for v := range s.content {
@@ -65,6 +73,7 @@ func (s *Set) Union(s2 *Set) *Set {
 	return ns
 }
 
+// Intersect : Intersect operation of set
 func (s *Set) Intersect(s2 *Set) *Set {
 	ns := NewSet()
 	for v := range s.content {
@@ -75,6 +84,7 @@ func (s *Set) Intersect(s2 *Set) *Set {
 	return ns
 }
 
+// Difference : Difference operation of set
 func (s *Set) Difference(s2 *Set) *Set {
 	ns := NewSet()
 	for v := range s.content {
