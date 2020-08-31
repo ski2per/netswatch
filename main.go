@@ -228,6 +228,7 @@ func main() {
 	}
 	// Add by Ted, just for fun :P
 	netswatch.Logo()
+	fmt.Printf("\nNetswatch: %s\n\n", version.Version)
 
 	// Validate flags
 	if opts.subnetLeaseRenewMargin >= 24*60 || opts.subnetLeaseRenewMargin <= 0 {
