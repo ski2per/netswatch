@@ -37,7 +37,7 @@ NW_NODE_TYPE | Netswatch routing type(router, node, internal) | internal
 NW_NODE_NAME | Netswatch node name | default-node(when hostname not found)
 NW_NETDATA_ENABLED | Extend Netdata for service registration | false
 NW_NETDATA_PORT | Netdata metrics port | 19999
-NW_LOOP | Netswatch loop(seconds) | 60
+NW_LOOP | Netswatch max loop(seconds) | 600 
 NW_LOG_LEVEL | Logging level | info
 
 
