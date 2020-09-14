@@ -38,6 +38,11 @@ type network struct {
 }
 
 const (
+	// Guess: 	8bytes(vxlan header) +
+	// 			8bytes(udp header) +
+	// 			20bytes(ip header) +
+	// 			14bytes(ethernet header, no inner FCS)
+	// 			= 50 bytes
 	encapOverhead = 50
 )
 
@@ -71,7 +76,7 @@ func (nw *network) Run(ctx context.Context) {
 	for {
 		select {
 		case evtBatch := <-events:
-			log.Info("c[_] GOT LEASE EVENT 🍔")
+			log.Info("c[_] GOT LEASE EVENT")
 			nw.handleSubnetEvents(ctx, evtBatch)
 
 		case <-ctx.Done():
