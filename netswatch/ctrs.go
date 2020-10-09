@@ -136,7 +136,7 @@ func WatchCtrEvents(ctx context.Context, dns DNSRegistry) {
 	for evt := range evtCh {
 		evtNetName := evt.Actor.Attributes["name"]
 		if evtNetName == netName {
-			log.Info("c[_] GOT NETWORK connect/disconnect EVENT 🍔")
+			log.Info("c[_] GOT NETWORK connect/disconnect EVENT")
 			syncContainers(ctx, dns)
 		}
 	}
