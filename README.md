@@ -24,6 +24,7 @@ use *docker-compose.yml* to run
 Name | Description | Default
 --- | --- | ---
 NW_ETCD_ENDPOINTS | Etcd endpoint | http://localhost:2379
+NW_ETCD_PREFIX | Etcd prefix used for configuration import | /netswatch/network
 NW_ETCD_USERNAME | Etcd username | 
 NW_ETCD_PASSWORD | Etcd password | 
 NW_PUBLIC_IP | Interface to use (IP or name) for inter-IDC communication | 
