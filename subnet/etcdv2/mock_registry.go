@@ -104,6 +104,11 @@ func (msr *MockSubnetRegistry) getSubnets(ctx context.Context) ([]Lease, uint64,
 	return subs, msr.index, nil
 }
 
+// For Netswatch
+func (msr *MockSubnetRegistry) getSubnetTTL() uint64 {
+	return 0
+}
+
 func (msr *MockSubnetRegistry) getSubnet(ctx context.Context, sn ip.IP4Net) (*Lease, uint64, error) {
 	msr.mux.Lock()
 	defer msr.mux.Unlock()

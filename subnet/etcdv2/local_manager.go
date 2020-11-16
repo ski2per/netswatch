@@ -29,8 +29,8 @@ import (
 )
 
 const (
-	raceRetries = 10
-	subnetTTL   = 36 * time.Hour
+	raceRetries     = 10
+	defaultDuration = time.Hour
 )
 
 type LocalManager struct {
@@ -150,7 +150,7 @@ func (m *LocalManager) tryAcquireLease(ctx context.Context, config *Config, extI
 			ttl := time.Duration(0)
 			if !l.Expiration.IsZero() {
 				// Not a reservation
-				ttl = subnetTTL
+				ttl = time.Duration(m.registry.getSubnetTTL()) * defaultDuration
 			}
 			exp, err := m.registry.updateSubnet(ctx, l.Subnet, attrs, ttl, 0)
 			if err != nil {
@@ -180,7 +180,7 @@ func (m *LocalManager) tryAcquireLease(ctx context.Context, config *Config, extI
 				ttl := time.Duration(0)
 				if !l.Expiration.IsZero() {
 					// Not a reservation
-					ttl = subnetTTL
+					ttl = time.Duration(m.registry.getSubnetTTL()) * defaultDuration
 				}
 				exp, err := m.registry.updateSubnet(ctx, l.Subnet, attrs, ttl, 0)
 				if err != nil {
@@ -215,7 +215,8 @@ func (m *LocalManager) tryAcquireLease(ctx context.Context, config *Config, extI
 		}
 	}
 
-	exp, err := m.registry.createSubnet(ctx, sn, attrs, subnetTTL)
+	ttl := time.Duration(m.registry.getSubnetTTL()) * defaultDuration
+	exp, err := m.registry.createSubnet(ctx, sn, attrs, ttl)
 	switch {
 	case err == nil:
 		log.Infof("Allocated lease (%v) to current node (%v) ", sn, extIaddr)
@@ -256,7 +257,8 @@ OuterLoop:
 }
 
 func (m *LocalManager) RenewLease(ctx context.Context, lease *Lease) error {
-	exp, err := m.registry.updateSubnet(ctx, lease.Subnet, &lease.Attrs, subnetTTL, 0)
+	ttl := time.Duration(m.registry.getSubnetTTL()) * defaultDuration
+	exp, err := m.registry.updateSubnet(ctx, lease.Subnet, &lease.Attrs, ttl, 0)
 	if err != nil {
 		return err
 	}

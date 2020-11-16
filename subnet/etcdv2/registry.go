@@ -40,6 +40,7 @@ type Registry interface {
 	getNetworkConfig(ctx context.Context) (string, error)
 	getSubnets(ctx context.Context) ([]Lease, uint64, error)
 	getSubnet(ctx context.Context, sn ip.IP4Net) (*Lease, uint64, error)
+	getSubnetTTL() uint64
 	createSubnet(ctx context.Context, sn ip.IP4Net, attrs *LeaseAttrs, ttl time.Duration) (time.Time, error)
 	updateSubnet(ctx context.Context, sn ip.IP4Net, attrs *LeaseAttrs, ttl time.Duration, asof uint64) (time.Time, error)
 	deleteSubnet(ctx context.Context, sn ip.IP4Net) error
@@ -55,6 +56,7 @@ type EtcdConfig struct {
 	Prefix    string
 	Username  string
 	Password  string
+	TTL       uint64
 }
 
 type etcdNewFunc func(c *EtcdConfig) (etcd.KeysAPI, error)
@@ -147,6 +149,11 @@ func (esr *etcdSubnetRegistry) getSubnets(ctx context.Context) ([]Lease, uint64,
 	}
 
 	return leases, resp.Index, nil
+}
+
+// Netswatch: add method for retrieving subnet TTL
+func (esr *etcdSubnetRegistry) getSubnetTTL() uint64 {
+	return esr.etcdCfg.TTL
 }
 
 func (esr *etcdSubnetRegistry) getSubnet(ctx context.Context, sn ip.IP4Net) (*Lease, uint64, error) {
