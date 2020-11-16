@@ -89,30 +89,30 @@ type CmdLineOpts struct {
 	// kubeAnnotationPrefix   string
 	// kubeConfigFile         string
 	// netConfPath            string
-	iface                  flagSlice
-	ifaceRegex             flagSlice
-	ipMasq                 bool
-	subnetFile             string
-	subnetDir              string
-	publicIP               string
-	subnetLeaseTTL         uint64
-	subnetLeaseRenewMargin int
-	healthzIP              string
-	healthzPort            int
-	charonExecutablePath   string
-	charonViciUri          string
-	iptablesResyncSeconds  int
-	iptablesForwardRules   bool
-	dnsEndpoint            string
-	dnsToken               string
-	networkName            string
-	orgName                string
-	nodeName               string
-	nodeType               string
-	netdataEnabled         bool
-	netdataPort            int
-	loop                   int
-	logLevel               string
+	iface                 flagSlice
+	ifaceRegex            flagSlice
+	ipMasq                bool
+	subnetFile            string
+	subnetDir             string
+	publicIP              string
+	subnetLeaseTTL        uint64
+	subnetLeaseRenewal    int
+	healthzIP             string
+	healthzPort           int
+	charonExecutablePath  string
+	charonViciUri         string
+	iptablesResyncSeconds int
+	iptablesForwardRules  bool
+	dnsEndpoint           string
+	dnsToken              string
+	networkName           string
+	orgName               string
+	nodeName              string
+	nodeType              string
+	netdataEnabled        bool
+	netdataPort           int
+	loop                  int
+	logLevel              string
 }
 
 var (
@@ -135,7 +135,7 @@ func init() {
 	flannelFlags.StringVar(&opts.subnetFile, "subnet-file", "/run/flannel/subnet.env", "filename where env variables (subnet, MTU, ... ) will be written to")
 	flannelFlags.StringVar(&opts.publicIP, "public-ip", "", "IP accessible by other nodes for inter-host communication")
 	flannelFlags.Uint64Var(&opts.subnetLeaseTTL, "subnet-lease-ttl", 72, "subnet lease TTL, in hours")
-	flannelFlags.IntVar(&opts.subnetLeaseRenewMargin, "subnet-lease-renew-margin", 60, "subnet lease renewal margin, in minutes, ranging from 1 to 1439")
+	flannelFlags.IntVar(&opts.subnetLeaseRenewal, "subnet-lease-renewal", 60, "subnet lease renewal margin, in minutes, ranging from 1 to 1439")
 	flannelFlags.BoolVar(&opts.ipMasq, "ip-masq", false, "setup IP masquerade rule for traffic destined outside of overlay network")
 	// Hidden by Ted for Netswatch
 	// flannelFlags.BoolVar(&opts.kubeSubnetMgr, "kube-subnet-mgr", false, "contact the Kubernetes API for subnet assignment instead of etcd.")
@@ -234,7 +234,7 @@ func main() {
 	fmt.Printf("\nNetswatch: %s\n\n", version.Version)
 
 	// Validate flags
-	if opts.subnetLeaseRenewMargin >= 24*60 || opts.subnetLeaseRenewMargin <= 0 {
+	if opts.subnetLeaseRenewal >= 24*60 || opts.subnetLeaseRenewal <= 0 {
 		log.Error("Invalid subnet-lease-renew-margin option, out of acceptable range")
 		os.Exit(1)
 	}
@@ -510,7 +510,7 @@ func MonitorLease(ctx context.Context, sm subnet.Manager, bn backend.Network, wg
 		wg.Done()
 	}()
 
-	renewMargin := time.Duration(opts.subnetLeaseRenewMargin) * time.Minute
+	renewMargin := time.Duration(opts.subnetLeaseRenewal) * time.Minute
 	dur := bn.Lease().Expiration.Sub(time.Now()) - renewMargin
 
 	for {
