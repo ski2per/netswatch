@@ -386,11 +386,13 @@ func (m *LocalManager) Name() string {
 	return fmt.Sprintf("Etcd Local Manager with Previous Subnet: %s", previousSubnet)
 }
 
+// GetSubnets returns all subnets for Netswatch
 func (m *LocalManager) GetSubnets(ctx context.Context) ([]Lease, error) {
 	leases, _, err := m.registry.getSubnets(ctx)
 	return leases, err
 }
 
+// GetRouters retrun all routers for Netswatch
 func (m *LocalManager) GetRouters(ctx context.Context) map[string]ip.IP4Net {
 	retry := 10
 
