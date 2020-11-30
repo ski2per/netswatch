@@ -32,7 +32,7 @@ NW_IFACE | IP accessible by other nodes for inter-host communication |
 NW_DNS_ENDPOINT | Consul DNS endpoint | http://localhost:8500
 NW_DNS_TOKEN | Consul DNS token | 
 NW_SUBNET_FILE | File to store subnet info | /run/flannel/subnet.env
-NW_SUBNET_TTL | Subnet TTL in Etcd(hours) | 72 
+NW_SUBNET_LEASE_TTL | Subnet TTL in Etcd(hours) | 72 
 NW_SUBNET_LEASE_RENEWAL | Subnet will be renew when TTL less than renewal minutes | 60 
 NW_NETWORK_NAME | Netswatch bridge network name | netswatch
 NW_ORG_NAME | Netswatch organization name | default.local
