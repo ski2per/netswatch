@@ -29,7 +29,7 @@ NW_ETCD_USERNAME | Etcd username |
 NW_ETCD_PASSWORD | Etcd password | 
 NW_PUBLIC_IP | Interface to use (IP or name) for inter-IDC communication | 
 NW_IFACE | IP accessible by other nodes for inter-host communication | 
-NW_DNS_ENDPOINT | Consul DNS endpoint | http://localhost:8500
+NW_DNS_ENDPOINTS | Consul DNS endpoint | http://localhost:8500
 NW_DNS_TOKEN | Consul DNS token | 
 NW_SUBNET_FILE | File to store subnet info | /run/flannel/subnet.env
 NW_SUBNET_LEASE_TTL | Subnet TTL in Etcd(hours) | 72 
