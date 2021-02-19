@@ -40,12 +40,12 @@ type DNSRegistry struct {
 
 func formatServiceString(s string) string {
 	/*
-		Input string and return:
-		abc         -> abc
-		abc.com     -> abc-com
-		abc..com    -> abc-com
-		abc_com     -> abc-com
-		c.com_cn  	-> abc-com-cn
+	   Input string and return:
+	   abc         -> abc
+	   abc.com     -> abc-com
+	   abc..com    -> abc-com
+	   abc_com     -> abc-com
+	   c.com_cn    -> abc-com-cn
 	*/
 	replaced := regexp.MustCompile(`\.+|_+`)
 	return replaced.ReplaceAllString(s, "-")
@@ -66,6 +66,8 @@ func (dnsr *DNSRegistry) InitAgent() {
 
 func (dnsr *DNSRegistry) listSvcIDs() []string {
 	// Get service IDs from Consul
+	// The returned service ID string will be formatted as below:
+	// cb1a99ed906023223399e64f98f1d136e8536d365141fc59abffac2152340785-10.68.128.2
 	filter := fmt.Sprintf("Tags contains \"%s\" and Tags contains \"%s\"", dnsr.OrgName, dnsr.NodeName)
 	svcs, err := dnsr.Agent.ServicesWithFilter(filter)
 	if err != nil {
@@ -75,8 +77,8 @@ func (dnsr *DNSRegistry) listSvcIDs() []string {
 	svcIDs := make([]string, len(svcs))
 
 	i := 0
-	for id := range svcs {
-		svcIDs[i] = id
+	for id, svc := range svcs {
+		svcIDs[i] = fmt.Sprintf("%s-%s", id, svc.Address)
 		i++
 	}
 

@@ -16,6 +16,7 @@ package netswatch
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -66,16 +67,24 @@ func listJoinedCtrs(ctx context.Context, name string) map[string]types.Container
 	return containers
 }
 
-func extractCtrIDs(m map[string]types.ContainerJSON) []string {
+func listCtrIDs(m map[string]types.ContainerJSON, networkName string) []string {
+	// Extract IDs of containers which joined in "networkName"
+	// The returned ID string will be formatted as below:
+	// cb1a99ed906023223399e64f98f1d136e8536d365141fc59abffac2152340785-10.68.128.2
 	IDs := make([]string, len(m))
 
 	i := 0
-	for k := range m {
-		IDs[i] = k
+	for id, ctr := range m {
+		addr := ctr.NetworkSettings.Networks[networkName].IPAddress
+		IDs[i] = fmt.Sprintf("%s-%s", id, addr)
 		i++
 	}
 	return IDs
-
+}
+func extractCtrID(fmtID string) string {
+	// Input: cb1a99ed906023223399e64f98f1d136e8536d365141fc59abffac2152340785-10.68.128.2
+	// Output: cb1a99ed906023223399e64f98f1d136e8536d365141fc59abffac2152340785
+	return strings.Split(fmtID, "-")[0]
 }
 
 func syncContainers(ctx context.Context, dns DNSRegistry) {
@@ -84,7 +93,7 @@ func syncContainers(ctx context.Context, dns DNSRegistry) {
 	log.Debug("svcIDs length: ", len(svcIDs))
 
 	containers := listJoinedCtrs(ctx, dns.NetworkName)
-	ctrIDs := extractCtrIDs(containers)
+	ctrIDs := listCtrIDs(containers, dns.NetworkName)
 
 	remoteSet := NewSet()
 	remoteSet.AddList(&svcIDs)
@@ -95,17 +104,18 @@ func syncContainers(ctx context.Context, dns DNSRegistry) {
 	svc2Register := localSet.Difference(remoteSet)
 	log.Debug("No. of services to register: ", svc2Register.Size())
 	for id := range svc2Register.content {
-		ctrJSON := containers[id]
-		log.Infof("Registering service: <%s>", ctrJSON.Name)
+		realID := extractCtrID(id)
+		ctrJSON := containers[realID]
+		log.Infof("Registering service: <%s>(%s)", ctrJSON.Name, realID)
 		dns.registerSvc(&ctrJSON)
 	}
 	svc2Deregister := remoteSet.Difference(localSet)
 	log.Debug("No. of services to deregister: ", svc2Deregister.Size())
 	for id := range svc2Deregister.content {
-		log.Infof("Deregistering service: <%s>", id)
-		dns.deregisterSvc(id)
+		realID := extractCtrID(id)
+		log.Infof("Deregistering service: <%s>", realID)
+		dns.deregisterSvc(realID)
 	}
-
 }
 
 // WatchCtrEvents is the function for watch container network releated event,
