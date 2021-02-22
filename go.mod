@@ -44,7 +44,7 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rakelkar/gonetsh v0.0.0-20190719023240-501daadcadf8
-	github.com/sirupsen/logrus v1.0.6 // indirect
+	github.com/sirupsen/logrus v1.0.6
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/spf13/pflag v0.0.0-20151013200643-08b1a584251b // indirect
 	github.com/ugorji/go v0.0.0-20170107133203-ded73eae5db7 // indirect

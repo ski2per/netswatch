@@ -106,7 +106,9 @@ func syncContainers(ctx context.Context, dns DNSRegistry) {
 	for id := range svc2Register.content {
 		realID := extractCtrID(id)
 		ctrJSON := containers[realID]
-		log.Infof("Registering service: <%s>(%s)", ctrJSON.Name, realID)
+		// Get service addr for logging
+		addr := ctrJSON.NetworkSettings.Networks[dns.NetworkName].IPAddress
+		log.Infof("Registering service: <%s>(%s: %s)", ctrJSON.Name, realID, addr)
 		dns.registerSvc(&ctrJSON)
 	}
 	svc2Deregister := remoteSet.Difference(localSet)
