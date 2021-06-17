@@ -5,7 +5,7 @@ REGISTRY?=docker.cetcxl.local/netswatch
 QEMU_VERSION=v3.0.0
 
 # Default tag and architecture. Can be overridden
-TAG?=$(shell git describe --tags --dirty)
+TAG?=$(shell git describe --tags --dirty --always)
 ifeq ($(TAG),)
 	TAG=latest
 endif
