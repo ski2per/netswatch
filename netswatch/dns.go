@@ -88,7 +88,8 @@ func (dnsr *DNSRegistry) listSvcIDs() []string {
 func (dnsr *DNSRegistry) registerSvc(ctr *types.ContainerJSON) {
 	var svc consul.AgentServiceRegistration
 	svc.ID = ctr.ID
-	svc.Name = fmt.Sprintf("%s-%s-%s", formatServiceString(dnsr.OrgName), dnsr.NodeName, getCtrName(ctr))
+	// Add prefix to service registered by Netswatch
+	svc.Name = fmt.Sprintf("nw-%s-%s-%s", formatServiceString(dnsr.OrgName), dnsr.NodeName, getCtrName(ctr))
 	svc.Address = ctr.NetworkSettings.Networks[dnsr.NetworkName].IPAddress
 	svc.Tags = []string{dnsr.OrgName, dnsr.NodeName}
 
